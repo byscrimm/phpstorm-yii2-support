@@ -16,10 +16,12 @@ import com.nvlad.yii2support.views.entities.ViewResolve;
 import com.nvlad.yii2support.views.entities.ViewResolveFrom;
 import com.nvlad.yii2support.views.index.ViewFileIndex;
 import com.nvlad.yii2support.views.util.ViewUtil;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class ViewGotoDeclarationHandler implements GotoDeclarationHandler {
@@ -40,10 +42,8 @@ public class ViewGotoDeclarationHandler implements GotoDeclarationHandler {
                 key = key + '.' + Yii2SupportSettings.getInstance(psiElement.getProject()).defaultViewExtension;
             }
 
-            final Collection<ViewInfo> views = FileBasedIndex.getInstance()
-                    .getValues(ViewFileIndex.identity, key, GlobalSearchScope.projectScope(project));
-
-            if (views.size() > 0) {
+            final @NotNull List<ViewInfo> views = FileBasedIndex.getInstance().getValues(ViewFileIndex.identity, key, GlobalSearchScope.projectScope(project));
+            if (!views.isEmpty()) {
                 boolean localViewSearch = false;
                 if (resolve.from == ViewResolveFrom.View) {
                     final String value = PhpUtil.getValue(psiElement);

@@ -166,12 +166,19 @@ public class ViewFileIndex extends FileBasedIndexExtension<String, ViewInfo> {
 
     private class ViewFileInputFilter implements FileBasedIndex.InputFilter {
         private boolean twigSupported;
+        private boolean smartySupported;
 
         ViewFileInputFilter() {
             try {
                 twigSupported = Class.forName("com.jetbrains.twig.TwigFileType") != null;
             } catch (ClassNotFoundException e) {
                 twigSupported = false;
+            }
+
+            try {
+                smartySupported = Class.forName("com.jetbrains.smarty.SmartyFileType") != null;
+            } catch (ClassNotFoundException e) {
+                smartySupported = false;
             }
         }
 
@@ -181,7 +188,7 @@ public class ViewFileIndex extends FileBasedIndexExtension<String, ViewInfo> {
                 return true;
             }
 
-            if (virtualFile.getFileType() == SmartyFileType.INSTANCE) {
+            if (smartySupported && virtualFile.getFileType() == SmartyFileType.INSTANCE) {
                 return true;
             }
 

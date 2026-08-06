@@ -2,6 +2,7 @@ package com.nvlad.yii2support.common;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ArrayUtil;
 import com.jetbrains.php.PhpIndex;
 import com.jetbrains.php.lang.documentation.phpdoc.psi.PhpDocProperty;
@@ -124,6 +125,13 @@ public class ClassUtils {
             } else if (expr instanceof MethodReference) {
                 methodRef = (MethodReference) expr;
             } else if (expr instanceof Variable) {
+                if ("this".equals(((Variable) expr).getName())) {
+                    PhpClass enclosingClass = PsiTreeUtil.getParentOfType(expr, PhpClass.class);
+                    if (enclosingClass != null) {
+                        return enclosingClass;
+                    }
+                }
+
                 PhpType type = expr.getType();
                 String strType = type.toString();
                 int index1 = strType.indexOf('\\');

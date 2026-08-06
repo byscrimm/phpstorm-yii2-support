@@ -1,21 +1,15 @@
 <idea-plugin>
-    <id>com.yii2support</id>
-    <name>Yii2 Support</name>
-    <vendor email="support@nvlad.com" url="http://nvlad.com">NVlad</vendor>
+    <id>com.yii2supportExtended</id>
+    <name>Yii2 Support Extended</name>
+    <vendor email="m.bajtl@amr-eventtechnik.de" url="https://github.com/vxdy/">Vxdy</vendor>
+    <description>Yii2 Support Plugin Extended for PhpStorm. Enables Auto Completion and many QOL Features when developing with
+        the Yii2 Framework. Fork of nvlad's "Yii2 Support"
+    </description>
 
     <change-notes><![CDATA[
       <b>Fixes</b><br/>
-      - Fix possible invalid completion variants when use "Action" string in action name<br/>
-      - Fix possible invalid completion variants when use "Controller" string in controller name<br/>
-      - Fix compatible with `PHP Toolbox plugin` for open "views" on `Ctrl+B`<br/>
-      - Fix `UnsupportedOperationException: This PHP type is immutable` error<br/>
+      - Fix Controller to View Jumping not working
       <br/>
-
-      <b>Features</b><br/>
-      - Added support "__class" for an object creator<br/>
-
-      <br/>
-      Full <a href="https://github.com/nvlad/yii2support/blob/master/CHANGELOG.md">CHANGELOG</a><br/>
     ]]></change-notes>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
@@ -28,7 +22,9 @@
     <depends>com.intellij.database</depends>
     <depends optional="true" config-file="twig.xml">com.jetbrains.twig</depends>
     <depends optional="true" config-file="terminal.xml">org.jetbrains.plugins.terminal</depends>
-    <depends optional="true" config-file="phpstorm-remote-interpreter.xml">org.jetbrains.plugins.phpstorm-remote-interpreter</depends>
+    <depends optional="true" config-file="phpstorm-remote-interpreter.xml">
+        org.jetbrains.plugins.phpstorm-remote-interpreter
+    </depends>
 
     <extensions defaultExtensionNs="com.jetbrains.php">
         <typeProvider4 implementation="com.nvlad.yii2support.typeprovider.YiiTypeProvider"/>
@@ -45,10 +41,13 @@
                              id="Yii2Support.SettingsForm"
                              parentId="reference.webide.settings.project.settings.php"/>
         <!-- Views -->
-        <completion.contributor language="PHP" implementationClass="com.nvlad.yii2support.views.completion.CompletionContributor"/>
-        <psi.referenceContributor language="PHP" implementation="com.nvlad.yii2support.views.references.PsiReferenceContributor"/>
+        <completion.contributor language="PHP"
+                                implementationClass="com.nvlad.yii2support.views.completion.CompletionContributor"/>
+        <psi.referenceContributor language="PHP"
+                                  implementation="com.nvlad.yii2support.views.references.PsiReferenceContributor"/>
         <gotoDeclarationHandler implementation="com.nvlad.yii2support.views.navigation.ViewGotoDeclarationHandler"/>
-        <renamePsiElementProcessor implementation="com.nvlad.yii2support.views.refactor.RenameViewProcessor" order="first"/>
+        <renamePsiElementProcessor implementation="com.nvlad.yii2support.views.refactor.RenameViewProcessor"
+                                   order="first"/>
         <localInspection language="PHP" shortName="MissedViewInspection"
                          displayName="Missing View file"
                          groupName="Views" groupPath="PHP,Framework,Yii2"
@@ -79,7 +78,8 @@
                              nonDefaultProject="true"/>
 
         <!-- Object Factory -->
-        <completion.contributor language="PHP" implementationClass="com.nvlad.yii2support.objectfactory.ObjectFactoryCompletionContributor"/>
+        <completion.contributor language="PHP"
+                                implementationClass="com.nvlad.yii2support.objectfactory.ObjectFactoryCompletionContributor"/>
         <localInspection language="PHP" shortName="MissedFieldInspection"
                          displayName="Missed field"
                          groupName="Object Factory" groupPath="PHP,Framework,Yii2"
@@ -90,10 +90,14 @@
         <completion.contributor language="PHP" implementationClass="com.nvlad.yii2support.i18n.CompletionContributor"/>
 
         <!-- Database -->
-        <completion.contributor language="PHP" implementationClass="com.nvlad.yii2support.database.QueryCompletionContributor"/>
-        <completion.contributor language="PHP" implementationClass="com.nvlad.yii2support.database.ParamsCompletionContributor"/>
-        <completion.contributor language="PHP" implementationClass="com.nvlad.yii2support.forms.FieldAttributesCompletionContributor"/>
-        <completion.contributor language="PHP" implementationClass="com.nvlad.yii2support.forms.ActiveFormCompletionContributor"/>
+        <completion.contributor language="PHP"
+                                implementationClass="com.nvlad.yii2support.database.QueryCompletionContributor"/>
+        <completion.contributor language="PHP"
+                                implementationClass="com.nvlad.yii2support.database.ParamsCompletionContributor"/>
+        <completion.contributor language="PHP"
+                                implementationClass="com.nvlad.yii2support.forms.FieldAttributesCompletionContributor"/>
+        <completion.contributor language="PHP"
+                                implementationClass="com.nvlad.yii2support.forms.ActiveFormCompletionContributor"/>
 
         <localInspection language="PHP" shortName="MissedParamInspection"
                          displayName="Wrong database parameters"
@@ -124,19 +128,24 @@
 
         <!-- Yii Configurations -->
         <fileBasedIndex implementation="com.nvlad.yii2support.configurations.ComponentsIndex" id="components-index"/>
-        <completion.contributor language="PHP" implementationClass="com.nvlad.yii2support.configurations.YiiAppCompletionContributor"/>
+        <completion.contributor language="PHP"
+                                implementationClass="com.nvlad.yii2support.configurations.YiiAppCompletionContributor"/>
 
-        <completion.contributor language="PHP" implementationClass="com.nvlad.yii2support.widgetsconfig.WidgetConfigCompletionContributor"/>
+        <completion.contributor language="PHP"
+                                implementationClass="com.nvlad.yii2support.widgetsconfig.WidgetConfigCompletionContributor"/>
 
         <!-- Validation -->
-        <completion.contributor language="PHP" implementationClass="com.nvlad.yii2support.validation.ValidationCompletionContributor"/>
+        <completion.contributor language="PHP"
+                                implementationClass="com.nvlad.yii2support.validation.ValidationCompletionContributor"/>
 
         <!-- AttributeLabels -->
-        <completion.contributor language="PHP" implementationClass="com.nvlad.yii2support.attributeLabels.AttributeLabelCompletionContributor"/>
+        <completion.contributor language="PHP"
+                                implementationClass="com.nvlad.yii2support.attributeLabels.AttributeLabelCompletionContributor"/>
 
         <!-- Url -->
-        <completion.contributor language="PHP" implementationClass="com.nvlad.yii2support.url.UrlCompletionContributor"/>
-<!--        <psi.referenceContributor language="PHP" implementation="com.nvlad.yii2support.url.UrlReferenceContributor"/>-->
+        <completion.contributor language="PHP"
+                                implementationClass="com.nvlad.yii2support.url.UrlCompletionContributor"/>
+        <!--        <psi.referenceContributor language="PHP" implementation="com.nvlad.yii2support.url.UrlReferenceContributor"/>-->
 
         <!-- Migrations -->
         <toolWindow id="Migrations" anchor="bottom"
