@@ -1,6 +1,6 @@
 Notes: This fork works for the current PHPStorm Version, although some Features are not working.
 
-IntelliJ IDEA / PhpStorm Yii2 Support for PHPStorm 2023 &  PHPStorm 2024 
+IntelliJ IDEA / PhpStorm Yii2 Support for PHPStorm 2023 - 2026 
 =====================================
 
 Fork of https://github.com/nvlad/yii2support
@@ -8,7 +8,7 @@ Fork of https://github.com/nvlad/yii2support
 Features
 --------
 
-### Views  (Currently not Working)
+### Views
 - View template names and parameters completion
 - Add view parameters after completion
 - Inspection for missing view templates
@@ -84,7 +84,7 @@ Use plugin settings window to set up table prefix
 ## Inspections
 Inspections can be disabled inline `/** @noinspection MissedViewInspection */`.
 
-### Views  (Currently not Working)
+### Views
 - `MissedViewInspection`  
 Reports missing view templates
 - `RequireParameterInspection`  
