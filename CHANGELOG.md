@@ -8,6 +8,19 @@
 - Correct Renovate fork/default-branch configuration, remove inherited reviewer/automerge settings, and bound CI runtime/concurrency.
 - Preserve upstream changelog separately in [docs/UPSTREAM_CHANGELOG.md](docs/UPSTREAM_CHANGELOG.md).
 
+## 1.1.0-rc.2
+
+- Replace fixed-depth widget PSI heuristics with structural GridView/DetailView contexts.
+- Infer GridView rows from ActiveDataProvider queries, local variables and named constructor/widget arguments; support widget/provider subclasses.
+- Complete public/PHPDoc attributes, readable getters and nested ActiveRecord relation paths; use cursor-aware attribute:format:label parsing.
+- Use filterModel for filterAttribute without confusing it with provider row types.
+- Infer only the first value callback parameter, including arrow functions; preserve explicit/PHPDoc types and distinguish array/object query results.
+- Defer callback model resolution until indices are available; remove the legacy callback type heuristic.
+- Exclude labels, nested options, write-only properties, unrelated widgets, non-data columns and ambiguous queries.
+- Add regression coverage using the real PHP PSI, field analysis and PHPDoc parsers from the SDK.
+
+Full IDE completion/type-provider integration and Plugin Verifier remain unverified.
+
 ## 1.1.0-rc.1
 
 - ActiveRecord relation completion, segment references and a search contributor for relation getter usages.

@@ -7,6 +7,11 @@
     </description>
 
     <change-notes><![CDATA[
+      <b>1.1.0-rc.2</b><br/>
+      GridView and DetailView attribute completion from data provider queries and models.
+      Nested relation paths, named arguments, local provider/query variables and cursor-aware column formats.<br/>
+      Types for the first value callback parameter, including arrow functions, with explicit/PHPDoc types preserved.
+      Array query results are handled separately. Full IDE integration verification is pending.<br/><br/>
       <b>1.1.0-rc.1</b><br/>
       ActiveRecord relation completion and navigation, nested relation paths, JOIN aliases,
       relation getter usage search, named arguments, and PHP PSI regression tests.<br/>
@@ -31,6 +36,7 @@
     <extensions defaultExtensionNs="com.jetbrains.php">
         <typeProvider4 implementation="com.nvlad.yii2support.typeprovider.YiiTypeProvider"/>
         <typeProvider4 implementation="com.nvlad.yii2support.typeprovider.ActiveRecordTypeProvider"/>
+        <typeProvider4 implementation="com.nvlad.yii2support.widgetsconfig.WidgetCallbackTypeProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">

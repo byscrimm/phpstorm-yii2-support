@@ -2,212 +2,68 @@ package com.nvlad.yii2support.widgetsconfig;
 
 import com.intellij.codeInsight.completion.*;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.icons.AllIcons;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.ProcessingContext;
-import com.intellij.util.indexing.FileBasedIndex;
-import com.jetbrains.php.PhpIndex;
 import com.jetbrains.php.lang.psi.elements.*;
-import com.nvlad.yii2support.common.ClassUtils;
-import com.nvlad.yii2support.configurations.ComponentsIndex;
+import com.nvlad.yii2support.common.*;
+import com.nvlad.yii2support.configurations.ComponentResolver;
+import com.nvlad.yii2support.relations.YiiModelResolver;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import java.util.*;
 
-public class WidgetConfigCompletionProvider extends CompletionProvider<CompletionParameters> {
-    @Override
-    protected void addCompletions(@NotNull CompletionParameters completionParameters, @NotNull ProcessingContext processingContext, @NotNull CompletionResultSet completionResultSet) {
-        boolean isArrayItem = false;
-        final Project project = completionParameters.getPosition().getProject();
-        final PhpIndex phpIndex = PhpIndex.getInstance(project);
-
-        // Case of first level in attribute/columns array
-        PsiElement top = walkParents(completionParameters,8);
-        if(!(top instanceof MethodReference)) {
-            // Case of ['?'] in attribute/column array
-            top = walkParents(completionParameters, 10);
-            if(top instanceof MethodReference){
-                if (walkParents(completionParameters, 3) instanceof ArrayCreationExpression) {
-                    isArrayItem = true;
-                }
-            }else{
-                // Case of ['attribute' => '?'] in array
-                top = walkParents(completionParameters, 11);
-            }
-        }
-
-        PhpClass modelClass = null;
-
-        if(top instanceof MethodReference){
-            PsiElement method = ((MethodReference) top).resolve();
-            if(method instanceof Method && ((Method) method).getName().equals("widget")){
-                for(PsiElement child : top.getChildren()){
-                    if(child instanceof ParameterList){
-                        PsiElement[] params = ((ParameterList) child).getParameters();
-                        if (params.length == 0) continue;
-                        for(PsiElement conf : params[0].getChildren()){
-                            String key = getHashKeyContents(conf);
-                            // 'model' key for DetailView widget and 'filterModel' for GridView
-                            if(key != null && (key.equals("model") || key.equals("filterModel"))){
-                                PsiElement val = ((ArrayHashElement) conf).getValue();
-                                if(val instanceof Variable){
-                                    modelClass = ClassUtils.getClassByVariable((Variable) val);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if(isArrayItem){
-            PhpClass phpClass = ClassUtils.getPhpClassByCallChain((MethodReference) top);
-            if(phpClass != null) {
-                if (ClassUtils.isClassInheritsOrEqual(phpClass, "\\yii\\widgets\\DetailView", phpIndex)) {
-                    String[] attributesString = new String[]{"attribute", "label", "format"};
-                    String[] attributes = new String[]{"value", "visible", "contentOptions", "captionOptions"};
-
-                    for (String attribute : attributesString) {
-                        completionResultSet.addElement(buildLookup(attribute, true));
-                    }
-                    for (String attribute : attributes) {
-                        completionResultSet.addElement(buildLookup(attribute, false));
-                    }
-                }else if(ClassUtils.isClassInheritsOrEqual(phpClass, "\\yii\\widgets\\BaseListView", phpIndex)){
-                    completionResultSet.addElement(buildValueClosureLookup(false));
-                }
-            }
-        } else {
-            final PsiElement element = completionParameters.getPosition().getParent();
-            if (!(element instanceof PhpExpression)) {
-                return;
-            }
-
-            String key = getHashKeyContents(element.getParent().getParent());
-            if(key != null) {
-                if (key.equals("format")) {
-                    doFormatterCompletion(completionResultSet, project, phpIndex, completionParameters.getPosition());
-                    return;
-                }else if (!key.equals("attribute")){
-                    return;
-                }
-            }
-
-            if(element instanceof StringLiteralExpression){
-                String attributeString = ((StringLiteralExpression) element).getContents();
-                int elCount = attributeString.split(":").length;
-                if(elCount == 2){ // Case 'field:' to call formatter
-                    completionResultSet = completionResultSet.withPrefixMatcher(
-                            attributeString.substring(attributeString.indexOf(':')+1)
-                                .replace("IntellijIdeaRulezzz ",""));
-                    doFormatterCompletion(completionResultSet, project, phpIndex, completionParameters.getPosition());
-                    return;
-                }else if(elCount > 2){
-                    return;
-                }
-            }
-
-            if(modelClass != null) {
-                for (Field field : ClassUtils.getClassFields(modelClass)) {
-                    LookupElementBuilder lookupBuilder = buildLookup(field);
-                    completionResultSet.addElement(lookupBuilder);
-                }
-            }
-        }
-    }
-
-    private void doFormatterCompletion(@NotNull CompletionResultSet completionResultSet, Project project, PhpIndex phpIndex, PsiElement origin){
-        final GlobalSearchScope scope = GlobalSearchScope.projectScope(project);
-
-        PhpClass completionClass = null;
-        for (String className : com.nvlad.yii2support.configurations.ComponentResolver.classes(origin, "formatter")) {
-            completionClass = ClassUtils.getClass(phpIndex, className);
-        }
-        if(completionClass == null) {
-            completionClass = ClassUtils.getClass(phpIndex, "yii\\i18n\\Formatter");
-        }
-        if (completionClass != null) {
-            for (Method method : ClassUtils.getFormatterAsMethods(completionClass)) {
-                LookupElementBuilder lookupBuilder = buildLookup(method);
-                completionResultSet.addElement(lookupBuilder);
-            }
-        }
-    }
-
-    @Nullable
-    private PsiElement walkParents(CompletionParameters parameters, int level) {
-        PsiElement element = parameters.getPosition();
-        for (int i = 0; i < level; i++) {
-            if (element == null) {
-                return null;
-            }
-            element = element.getParent();
-        }
-        return element;
-    }
-
-    @NotNull
-    private LookupElementBuilder buildLookup(PhpClassMember field) {
-        String lookupString = field instanceof Method ? ClassUtils.getAsPropertyName((Method) field) : field.getName();
-        LookupElementBuilder builder = LookupElementBuilder.create(field, lookupString).withIcon(field.getIcon());
-        if (field instanceof Field) {
-            builder = builder.withTypeText(field.getType().toString());
-        }
-
-        return buildLookup(builder, false, false);
-    }
-
-    @NotNull
-    private LookupElementBuilder buildLookup(String field, boolean addString) {
-        LookupElementBuilder builder = LookupElementBuilder.create(field).withIcon(AllIcons.Nodes.Variable);
-        return buildLookup(builder,true, addString);
-    }
-
-    @NotNull
-    private LookupElementBuilder buildLookup(LookupElementBuilder builder, boolean isArrayItem, boolean addString) {
-        return builder.withInsertHandler((insertionContext, lookupElement) -> {
-            Document document = insertionContext.getDocument();
-            int insertPosition = insertionContext.getSelectionEndOffset();
-            if (isArrayItem) {
-                document.insertString(insertPosition + 1, " => "+(addString?"''":"")+",");
-                insertPosition += 5;
-                if(addString){
-                    insertPosition++;
-                }
-                insertionContext.getEditor().getCaretModel().getCurrentCaret().moveToOffset(insertPosition);
-            }
+public final class WidgetConfigCompletionProvider extends CompletionProvider<CompletionParameters> {
+    public static WidgetModelResolver resolver(PsiElement origin) {
+        YiiModelResolver yii = new YiiModelResolver(origin.getProject());
+        return new WidgetModelResolver(yii, expression -> {
+            if (!(expression instanceof PhpTypedElement typed)) return List.of();
+            Set<PhpClass> result = new LinkedHashSet<>();
+            for (String name : typed.getType().global(origin.getProject()).getTypes())
+                if (name.startsWith("\\") && !name.endsWith("[]")) result.addAll(yii.classes(name));
+            return List.copyOf(result);
         });
     }
-
-    @NotNull
-    private LookupElementBuilder buildValueClosureLookup(boolean allParams){
-        return LookupElementBuilder.create("value")
-            .withIcon(AllIcons.Nodes.Function)
-            .withTypeText(allParams?"function ($model, $key, $index, $column)":"function ($data) {}")
-            .withInsertHandler((insertionContext, lookupElement) -> {
-                Document document = insertionContext.getDocument();
-                int insertPosition = insertionContext.getSelectionEndOffset();
-                if(allParams) {
-                    document.insertString(insertPosition + 1, " => function ($model, $key, $index, $column) {},");
-                    insertPosition += 47;
-                }else{
-                    document.insertString(insertPosition + 1, " => function ($data) {},");
-                    insertPosition += 23;
-                }
-                insertionContext.getEditor().getCaretModel().getCurrentCaret().moveToOffset(insertPosition);
-        });
-    }
-
-    @Nullable
-    private String getHashKeyContents(PsiElement e) {
-        if (e instanceof ArrayHashElement) {
-            PhpPsiElement key = ((ArrayHashElement) e).getKey();
-            if (key instanceof StringLiteralExpression) {
-                return ((StringLiteralExpression) key).getContents();
-            }
+    @Override protected void addCompletions(@NotNull CompletionParameters parameters,
+                                           @NotNull ProcessingContext processing, @NotNull CompletionResultSet result) {
+        if (DumbService.isDumb(parameters.getPosition().getProject())
+                || !(parameters.getPosition().getParent() instanceof StringLiteralExpression literal)) return;
+        WidgetContext context = WidgetContext.of(literal);
+        WidgetModelResolver resolver = resolver(literal);
+        if (!resolver.supports(context)) return;
+        int start = literal.getTextOffset() + literal.getValueRange().getStartOffset();
+        int offset = Math.max(0, Math.min(literal.getContents().length(), parameters.getOffset() - start));
+        if (context.kind() == WidgetContext.Kind.OPTION) {
+            String[] options = resolver.isGrid(context)
+                    ? new String[]{"attribute", "value", "format", "label", "visible", "filterAttribute", "filter", "contentOptions", "headerOptions", "enableSorting"}
+                    : new String[]{"attribute", "value", "format", "label", "visible", "contentOptions", "captionOptions"};
+            // Only supply names. No raw quote/offset insertion that could overwrite an existing value.
+            for (String option : options) result.addElement(LookupElementBuilder.create(option));
+            return;
         }
-        return null;
+        WidgetAttributePosition position = context.kind() == WidgetContext.Kind.FORMAT
+                ? new WidgetAttributePosition(true, "", literal.getContents().substring(0, offset))
+                : WidgetAttributePosition.parse(literal.getContents(), offset, context.column() == null);
+        if (position == null) return;
+        result = result.withPrefixMatcher(position.prefix());
+        if (position.format()) {
+            for (var entry : formatters(context).entrySet()) result.addElement(LookupElementBuilder.create(entry.getValue(), entry.getKey()));
+            return;
+        }
+        for (var attribute : resolver.attributes(resolver.models(context), position.parentPath())) {
+            result.addElement(LookupElementBuilder.create(attribute.declaration(), attribute.name())
+                    .withIcon(attribute.declaration().getIcon())
+                    .withTailText(attribute.declaration() instanceof Method ? "  getter" : "", true));
+        }
+    }
+    private Map<String, Method> formatters(WidgetContext context) {
+        YiiModelResolver yii = new YiiModelResolver(context.call().getProject());
+        PsiElement configured = LocalPhpValues.resolve(PhpArrays.value(context.config(), "formatter"));
+        Set<PhpClass> classes = new LinkedHashSet<>(yii.classes(PhpArrays.className(configured)));
+        if (classes.isEmpty()) for (String fqn : ComponentResolver.classes(context.call(), "formatter")) classes.addAll(yii.classes(fqn));
+        if (classes.isEmpty()) classes.addAll(yii.classes("\\yii\\i18n\\Formatter"));
+        Map<String, Method> result = new LinkedHashMap<>();
+        for (PhpClass clazz : classes) for (Method method : ClassUtils.getFormatterAsMethods(clazz))
+            if (method.getAccess().isPublic() && !method.isStatic()) result.putIfAbsent(ClassUtils.getAsPropertyName(method), method);
+        return result;
     }
 }

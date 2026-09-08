@@ -17,7 +17,7 @@ Read `AGENTS.md` first; verify current source and configuration before making ch
 
 ## Build baseline
 
-`gradle.properties` is the version source: plugin `1.1.0-rc.1`, PhpStorm `2026.2.2`.
+`gradle.properties` is the version source: plugin `1.1.0-rc.2`, PhpStorm `2026.2.2`.
 SDK used locally: `262.10315.130`; Java 25. Gradle Wrapper configuration: 9.1.0;
 IntelliJ Platform Gradle plugin: 2.18.1. Do not assume these are the latest releases.
 
@@ -64,6 +64,13 @@ inherited relation getters, local query variables, named args, `self`/`static`
 targets, segment navigation/rename and relation getter usage-search registration.
 The final `asArray(false)` now overrides an earlier array-mode call.
 
+The GridView/DetailView increment (RC.2) replaces fixed-depth PSI heuristics with
+`WidgetContext`, adds `WidgetModelResolver` and cursor-aware shorthand parsing.
+`WidgetCallbackTypeProvider` records a local deferred signature during indexing and
+resolves model classes later. Only the first value parameter is inferred; explicit and
+PHPDoc types are preserved. filterModel does not determine row callback types.
+
+
 ## Important implementation findings
 
 - PHP named argument names/colons can be siblings of the expression. Use
@@ -79,6 +86,11 @@ The final `asArray(false)` now overrides an earlier array-mode call.
   references alone do not provide index-wide getter usage search.
 - Relation rename tests use the SDK's real string manipulator and preserve dotted
   suffixes and JOIN aliases. Whole-IDE refactoring still needs integration tests.
+- Closure values may be PhpExpression wrappers around Function; compare expression/function ranges
+  when recognizing a direct callback. Inline @param documentation may sit before the wrapper
+  rather than on Function.getDocComment(). Do not rely only on Parameter.getDocTag().
+- Field/PHPDoc tests register the SDK DFA assertion/doc-prefix extension points and actual
+  property/param tag parsers. These are test harness registrations, not production plugin dependencies.
 - Core test environment needs `TreeAspect` before `PomModelImpl`, parser registry
   defaults from the SDK, and smart-pointer initialization while the app is alive.
 - Two existing removal warnings concern a `ListPopupImpl` constructor in
@@ -86,13 +98,14 @@ The final `asArray(false)` now overrides an earlier array-mode call.
 
 ## Last verified plugin artifact
 
-Historical local report: [1.1.0-rc.1 verification](verification/1.1.0-rc.1.md).
+Current local report: [1.1.0-rc.2 verification](verification/1.1.0-rc.2.md).
+Previous artifact: [1.1.0-rc.1 verification](verification/1.1.0-rc.1.md).
 
 - 148 pure-logic checks passed.
-- 52 real PHP PSI checks passed.
-- 182 plugin classes checked against 1272 SDK jars; static JVM check passed.
+- 119 PHP PSI checks passed (67 added in the GridView/DetailView increment).
+- 190 plugin classes checked against 1272 SDK jars; static JVM check passed.
 - ZIP/JAR structure, descriptor version and absence of test classes checked.
-- ZIP SHA-256: `209c17977f05757517f33d9e13a44f614c37ac574f042f6c460b94150efed8a4`.
+- ZIP SHA-256: `4936701d4e559b6fc647849805739254358dfd3d75572ac85ac10dcc2a235c1c`.
 
 These results belong to the recorded local RC artifact. They are not a claim that
 every later checkout or a GitHub Actions run passed. Repository documentation and
@@ -105,11 +118,13 @@ profile. Full index, completion UI and end-to-end Find Usages/Rename are unverif
 Gradle/Docker and the official Plugin Verifier have not run locally because their
 dependency downloads were not authorized. Do not work around either condition.
 
-Next milestone: GridView/DetailView model inference from `dataProvider`, sharing the
-relation model resolver. Then improve controller-to-view flow (named args, `compact`,
-local arrays), config merging/DI, routes/i18n and indexing/performance. See the
+Next milestone: controller-to-view flow (named args, `compact`, local arrays), then
+config merging/DI, routes/i18n and indexing/performance. GridView provider factories,
+post-construction provider/query mutations, widget config variables and custom Query
+defaults/scopes remain unsupported. Full IDE callback type/completion integration also remains unverified. See the
 checkboxes in `DEVELOPMENT_PLAN.md`; these are plans, not advertised completed features.
 
-Repository setup added docs, agent guidance, templates and local Git remotes.
-Remote publication, GitHub About changes, repository settings, bot installation and
+Repository setup commit `cb150d9` was pushed to origin/master through SSH. The RC.2
+increment is developed locally on `codex/gridview-models`; do not assume it has been
+pushed or released. GitHub About changes, repository settings, bot installation and
 Marketplace publication must be reported separately when they actually occur.

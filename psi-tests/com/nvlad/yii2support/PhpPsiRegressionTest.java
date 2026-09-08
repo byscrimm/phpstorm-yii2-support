@@ -10,6 +10,7 @@ import com.jetbrains.php.lang.parser.PhpParserDefinition;
 import com.jetbrains.php.lang.psi.elements.*;
 import com.nvlad.yii2support.common.*;
 import com.nvlad.yii2support.relations.*;
+import com.nvlad.yii2support.widgetsconfig.*;
 import java.util.*;
 
 /** Real PhpStorm PHP parser/PSI in IntelliJ's Core test environment. No IDE UI or full index. */
@@ -43,12 +44,26 @@ public final class PhpPsiRegressionTest {
             app.registerFileType(PhpFileType.INSTANCE,"php"); app.registerParserDefinition(new PhpParserDefinition());
             app.addExplicitExtension(ElementManipulators.INSTANCE,StringLiteralExpression.class,new com.jetbrains.php.lang.psi.manipulators.StringLiteralManipulator());
             CoreApplicationEnvironment.registerApplicationExtensionPoint(com.intellij.psi.impl.source.tree.TreeCopyHandler.EP_NAME,com.intellij.psi.impl.source.tree.TreeCopyHandler.class);
+            CoreApplicationEnvironment.registerApplicationExtensionPoint(com.intellij.openapi.extensions.ExtensionPointName.create("com.jetbrains.php.dfaStateFromAssertionProvider"), com.jetbrains.php.codeInsight.typeInference.PhpDfaStateFromAssertionProvider.class);
+            CoreApplicationEnvironment.registerApplicationExtensionPoint(
+                com.jetbrains.php.lang.documentation.phpdoc.parser.tags.PhpDocTagParserEP.EP_NAME,
+                com.jetbrains.php.lang.documentation.phpdoc.parser.tags.PhpDocTagParserEP.class);
+            for (String tag : List.of("property", "property-read", "property-write", "param")) {
+                var parser = new com.jetbrains.php.lang.documentation.phpdoc.parser.tags.PhpDocTagParserEP();
+                parser.tagName = tag;
+                parser.implementationClass = "com.jetbrains.php.lang.documentation.phpdoc.parser.tags."
+                    + (tag.equals("param") ? "PhpDocParamTagParser" : "PhpDocPropertyTagParser");
+                parser.setPluginDescriptor(new com.intellij.openapi.extensions.DefaultPluginDescriptor(
+                    com.intellij.openapi.extensions.PluginId.getId("com.jetbrains.php")));
+                com.jetbrains.php.lang.documentation.phpdoc.parser.tags.PhpDocTagParserEP.EP_NAME.getPoint().registerExtension(parser, disposable);
+            }
+            CoreApplicationEnvironment.registerApplicationExtensionPoint(com.intellij.openapi.extensions.ExtensionPointName.create("com.jetbrains.php.docPrefixProvider"), com.jetbrains.php.lang.psi.resolve.types.PhpDocPrefixProvider.class);
             project=new CoreProjectEnvironment(disposable,app).getProject();
             Disposer.register(disposable,project);
             project.registerService(PhpProjectSharedConfiguration.class,new PhpProjectSharedConfiguration());
             project.registerService(com.intellij.pom.tree.TreeAspect.class,new com.intellij.pom.tree.TreeAspect());
             project.registerService(com.intellij.pom.PomModel.class,new com.intellij.pom.core.impl.PomModelImpl(project));
-            arguments(); modelsAndRelations(); contexts(); references(); arrayMode(); incomplete();
+            arguments(); modelsAndRelations(); contexts(); references(); arrayMode(); widgets(); widgetCallbacks(); incomplete();
             System.out.println("PASS: "+checks+" real PHP PSI regression checks");
         } finally { Disposer.dispose(disposable); }
     }
@@ -159,10 +174,152 @@ public final class PhpPsiRegressionTest {
         var file=php("namespace app; User::find()->asArray()->asArray(value: false)->one();");
         eq("last asArray(false) restores object mode",false,com.nvlad.yii2support.typeprovider.ActiveRecordTypeProvider.usesArrayResult(call(file,"one")));
     }
+
+    private static final WidgetModelResolver widgets = new WidgetModelResolver(resolver);
+    private static List<String> widgetModels(PsiFile file, String value) {
+        return widgets.models(WidgetContext.of(literal(file,value))).stream().map(PhpClass::getName).sorted().toList();
+    }
+    private static void widgets() {
+        php("namespace yii\\base; class Model {}");
+        php("namespace yii\\grid; class GridView {} class DataColumn {} class ActionColumn {}");
+        php("namespace yii\\widgets; class DetailView {}");
+        php("namespace yii\\data; class ActiveDataProvider {} class ArrayDataProvider {}");
+        php("""
+            namespace gridtest;
+            class Profile extends \\yii\\db\\ActiveRecord { public $city; }
+            class User extends \\yii\\db\\ActiveRecord {
+                public $email;
+                private $password;
+                public static $cache;
+                public function getProfile() { return $this->hasOne(Profile::class, []); }
+                public function getDisplayName() { return 'display'; }
+                protected function getPrivateName() { return 'hidden'; }
+                public function getRequiresArg($id) { return 'hidden'; }
+            }
+            class Search extends \\yii\\base\\Model { public $searchTerm; }
+            class ChildUser extends User { public $other; }
+            class Grid extends \\yii\\grid\\GridView {}
+            class Detail extends \\yii\\widgets\\DetailView {}
+            class Provider extends \\yii\\data\\ActiveDataProvider {}
+            class Column extends \\yii\\grid\\DataColumn {}
+            class Other { public static function widget($config) {} }
+            """);
+        var file=php("namespace gridtest; Grid::widget(['dataProvider'=>new Provider(['query'=>User::find()]),'columns'=>['email']]);");
+        eq("grid model from provider query",List.of("User"),widgetModels(file,"email"));
+        var context=WidgetContext.of(literal(file,"email"));
+        eq("grid attributes and readable getters",List.of("displayName","email","profile"),widgets.attributes(widgets.models(context),"").stream().map(WidgetModelResolver.Attribute::name).sorted().toList());
+        eq("nested relation attributes",List.of("city"),widgets.attributes(widgets.models(context),"profile").stream().map(WidgetModelResolver.Attribute::name).toList());
+        eq("unknown relation path stays empty",List.of(),widgets.attributes(widgets.models(context),"unknown"));
+        eq("malformed relation path stays empty",List.of(),widgets.attributes(widgets.models(context),"profile..x"));
+        file=php("namespace gridtest; $q=User::find()->where([]); $conf=['query'=>$q]; $p=new Provider(config:$conf); Grid::widget(config:['dataProvider'=>$p,'columns'=>[['attribute'=>'email']]]);");
+        eq("named configs and provider/query variables",List.of("User"),widgetModels(file,"email"));
+        file=php("namespace gridtest; Grid::widget(['filterModel'=>new Search(),'dataProvider'=>new Provider(['query'=>User::find()]),'columns'=>[['attribute'=>'email','filterAttribute'=>'searchTerm']]]);");
+        eq("provider model precedes filterModel",List.of("User"),widgetModels(file,"email"));
+        eq("filterAttribute uses filter model",List.of("Search"),widgetModels(file,"searchTerm"));
+        file=php("namespace gridtest; Grid::widget(['filterModel'=>new Search(),'columns'=>['searchTerm']]);");
+        eq("filterModel attribute fallback preserved",List.of("Search"),widgetModels(file,"searchTerm"));
+        file=php("namespace gridtest; $model=new ChildUser(); Detail::widget(['model'=>$model,'attributes'=>['email']]);");
+        eq("DetailView local model",List.of("ChildUser"),widgetModels(file,"email"));
+        context=WidgetContext.of(literal(file,"email"));
+        eq("inherited attributes",true,widgets.attributes(widgets.models(context),"").stream().anyMatch(a->a.name().equals("email")));
+        file=php("namespace gridtest; Detail::widget(['model'=>new Search(),'attributes'=>[['attribute'=>'searchTerm','value'=>'display text']]]);");
+        eq("DetailView non-AR model",List.of("Search"),widgetModels(file,"searchTerm"));
+        eq("DetailView literal value is display text",false,widgets.supports(WidgetContext.of(literal(file,"display text"))));
+        for (String row : List.of("['label'=>'target']", "['contentOptions'=>['class'=>'target']]", "['format'=>['date','target']]", "['filter'=>['target']]")) {
+            file=php("namespace gridtest; Grid::widget(['filterModel'=>new Search(),'columns'=>["+row+"]]);");
+            eq("unrelated column string excluded: "+row,null,WidgetContext.of(literal(file,"target")));
+        }
+        file=php("namespace gridtest; Other::widget(['dataProvider'=>new Provider(['query'=>User::find()]),'columns'=>['email']]);");
+        eq("unrelated widget excluded",List.of(),widgetModels(file,"email"));
+        file=php("namespace gridtest; Grid::widget(['dataProvider'=>new Provider(['query'=>User::find()]),'columns'=>[['class'=>\\yii\\grid\\ActionColumn::class,'attribute'=>'email']]]);");
+        eq("non-data custom column excluded",List.of(),widgetModels(file,"email"));
+        file=php("namespace gridtest; Grid::widget(['dataProvider'=>new Provider(['query'=>User::find()]),'columns'=>[['class'=>Column::class,'attribute'=>'email']]]);");
+        eq("DataColumn subclass supported",List.of("User"),widgetModels(file,"email"));
+        file=php("namespace gridtest; $q=User::find(); if ($flag) {$q=Profile::find();} Grid::widget(['dataProvider'=>new Provider(['query'=>$q]),'columns'=>['email']]);");
+        eq("ambiguous query rejected",List.of(),widgetModels(file,"email"));
+        file=php("namespace gridtest; $p=$q; $q=$p; Grid::widget(['dataProvider'=>$p,'columns'=>['email']]);");
+        eq("cyclic provider variables terminate",List.of(),widgetModels(file,"email"));
+        file=php("namespace gridtest; Grid::widget(['dataProvider'=>new Provider(['query'=>User::find()->asArray()]),'columns'=>[['value'=>'profile.city']]]);");
+        eq("string GridView value is attribute path",List.of("User"),widgetModels(file,"profile.city"));
+        file=php("namespace gridtest; Detail::widget(['model'=>new Search(),'attributes'=>[['target']]]);");
+        eq("structural option context",WidgetContext.Kind.OPTION,WidgetContext.of(literal(file,"target")).kind());
+        file=php("namespace gridtest; Grid::widget(['filterModel'=>new Search(),'columns'=>[['format'=>'date']]]);");
+        eq("explicit format context",WidgetContext.Kind.FORMAT,WidgetContext.of(literal(file,"date")).kind());
+        php("namespace gridtest; /** @property string $nickname */ class Documented extends User {}");
+        eq("PHPDoc attributes retained",true,widgets.attributes(List.of(classes.get("\\gridtest\\Documented")),"").stream().anyMatch(a->a.name().equals("nickname")));
+        for (String query:List.of("User::find()->one()", "User::find()->all()", "new User()")) {
+            file=php("namespace gridtest; Grid::widget(['dataProvider'=>new Provider(['query'=>"+query+"]),'columns'=>['email']]);");
+            eq("provider needs query rather than fetched rows: "+query,List.of(),widgetModels(file,"email"));
+        }
+        file=php("namespace gridtest; Detail::widget(['model'=>User::find()->one(),'attributes'=>['email']]);");
+        eq("DetailView find one model",List.of("User"),widgetModels(file,"email"));
+        for (String model:List.of("User::find()->all()", "User::find()->asArray()->one()", "User::find()")) {
+            file=php("namespace gridtest; Detail::widget(['model'=>"+model+",'attributes'=>['email']]);");
+            eq("DetailView does not treat query/array as row: "+model,List.of(),widgetModels(file,"email"));
+        }
+        php("namespace gridtest; /**\n * @property-read string $visibleName\n * @property-write string $writeOnly\n */ class AccessDoc extends User {}");
+        var docAttrs=widgets.attributes(List.of(classes.get("\\gridtest\\AccessDoc")),"").stream().map(WidgetModelResolver.Attribute::name).toList();
+        eq("read-only PHPDoc field is an attribute",true,docAttrs.contains("visibleName"));
+        eq("write-only PHPDoc field excluded",false,docAttrs.contains("writeOnly"));
+        eq("shorthand format after colon",new WidgetAttributePosition(true,"","da"),WidgetAttributePosition.parse("email:date:Label",8,true));
+        eq("caret in attribute before format",new WidgetAttributePosition(false,"","em"),WidgetAttributePosition.parse("email:date:Label",2,true));
+        eq("label never completed",null,WidgetAttributePosition.parse("email:date:Label",15,true));
+        eq("explicit attribute has no format suffix",null,WidgetAttributePosition.parse("email:da",8,false));
+        eq("nested prefix",new WidgetAttributePosition(false,"profile","ci"),WidgetAttributePosition.parse("profile.ci",10,true));
+        eq("double dot prefix rejected",null,WidgetAttributePosition.parse("profile..ci",11,true));
+    }
+    private static Parameter parameter(PsiFile file,String name) {
+        return PsiTreeUtil.findChildrenOfType(file,Parameter.class).stream().filter(p->name.equals(p.getName())).findFirst().orElseThrow();
+    }
+    private static String callbackType(PsiFile file, String name) {
+        var type=WidgetCallbackTypeProvider.infer(parameter(file,name), widgets);
+        return type==null ? null : String.join("|",type.getTypes());
+    }
+    private static void widgetCallbacks() {
+        var file=php("namespace gridtest; Grid::widget(['dataProvider'=>new Provider(['query'=>User::find()]),'columns'=>[['value'=>function($model,$key,$index,$column){return $model->email;}]]]);");
+        eq("Grid callback first parameter type","\\gridtest\\User",callbackType(file,"model"));
+        for (String name:List.of("key","index","column")) eq("Grid callback other parameter untouched: "+name,null,callbackType(file,name));
+        var provider=new WidgetCallbackTypeProvider();
+        var physical=PsiFileFactory.getInstance(project).createFileFromText("callback.php",PhpFileType.INSTANCE,file.getText(),0,true);
+        SmartPointerManager.getInstance(project).createSmartPsiElementPointer(physical);
+        eq("index phase emits deferred signature without PhpIndex",true,provider.getType(parameter(physical,"model"))!=null);
+        eq("index phase excludes second parameter",null,provider.getType(parameter(file,"key")));
+        var legacy=new com.nvlad.yii2support.typeprovider.YiiTypeProvider();
+        eq("legacy callback heuristic removed",null,legacy.getType(parameter(file,"key")));
+        file=php("namespace gridtest; $query=User::find(); $provider=new Provider(['query'=>$query]); Grid::widget(['dataProvider'=>$provider,'columns'=>[['value'=>fn($row)=>$row->email]]]);");
+        eq("arrow function model parameter","\\gridtest\\User",callbackType(file,"row"));
+        file=php("namespace gridtest; $model=new Search(); Detail::widget(['model'=>$model,'attributes'=>[['value'=>function($row,$widget){return $row->searchTerm;}]]]);");
+        eq("Detail callback first parameter","\\gridtest\\Search",callbackType(file,"row"));
+        eq("Detail widget parameter untouched",null,callbackType(file,"widget"));
+        file=php("namespace gridtest; Grid::widget(['filterModel'=>new Search(),'columns'=>[['value'=>fn($row)=>$row->email]]]);");
+        eq("filterModel never becomes callback row",null,callbackType(file,"row"));
+        for (String chain:List.of("asArray()","asArray(true)","asArray(value:true)","asArray($flag)")) {
+            file=php("namespace gridtest; Grid::widget(['dataProvider'=>new Provider(['query'=>User::find()->"+chain+"]),'columns'=>[['value'=>fn($row)=>$row['email']]]]);");
+            eq("callback array rows "+chain,chain.contains("$flag") ? null : "\\array",callbackType(file,"row"));
+        }
+        file=php("namespace gridtest; $query=User::find()->asArray(); $query=$query->asArray(value:false); Grid::widget(['dataProvider'=>new Provider(['query'=>$query]),'columns'=>[['value'=>fn($row)=>$row->email]]]);");
+        eq("callback final false restores model","\\gridtest\\User",callbackType(file,"row"));
+        for (String callback:List.of("fn(Search $row)=>$row", "function(...$row){return $row;}", "function($outer){return fn($row)=>$row;}")) {
+            file=php("namespace gridtest; Grid::widget(['dataProvider'=>new Provider(['query'=>User::find()]),'columns'=>[['value'=>"+callback+"]]]);");
+            eq("explicit/variadic/nested callback excluded: "+callback,null,callbackType(file,"row"));
+        }
+        file=php("namespace gridtest; Grid::widget(['dataProvider'=>new Provider(['query'=>User::find()]),'columns'=>[['value'=>/** @param Search $row */ function($row){return $row;}]]]);");
+        eq("callback PHPDoc type preserved",null,callbackType(file,"row"));
+        file=php("namespace gridtest; Grid::widget(['filterModel'=>new Search(),'dataProvider'=>new \\yii\\data\\ArrayDataProvider([]),'columns'=>[['value'=>fn($row)=>$row]]]);");
+        eq("unknown array provider callback is not filter model",null,callbackType(file,"row"));
+        file=php("namespace gridtest; Other::widget(['dataProvider'=>new Provider(['query'=>User::find()]),'columns'=>[['value'=>fn($row)=>$row]]]);");
+        eq("unrelated widget callback excluded",null,callbackType(file,"row"));
+        file=php("namespace gridtest; Grid::widget(['dataProvider'=>new Provider(['query'=>User::find()]),'columns'=>[['contentOptions'=>['value'=>fn($row)=>$row]]]]);");
+        eq("nested unrelated value callback excluded",null,callbackType(file,"row"));
+    }
     private static void incomplete() {
-        for (String code:List.of("$x->with('","$x->with(['orders' =>", "$this->hasMany(", "$this->render(params:","$x->joinWith(['orders.","$a=$a; $a->with('x');")) {
+        for (String code:List.of("$x->with('","$x->with(['orders' =>", "$this->hasMany(", "$this->render(params:","$x->joinWith(['orders.","$a=$a; $a->with('x');", "\\yii\\grid\\GridView::widget(['columns'=>[['attribute'=>'", "\\yii\\widgets\\DetailView::widget(['model'=>new", "\\yii\\grid\\GridView::widget(['columns'=>[['value'=>fn($row)=>")) {
             var file=php(code);
-            for (var str:PsiTreeUtil.findChildrenOfType(file,StringLiteralExpression.class)) RelationContext.of(str);
+            for (var str:PsiTreeUtil.findChildrenOfType(file,StringLiteralExpression.class)) {
+                RelationContext.of(str);
+                widgets.models(WidgetContext.of(str));
+            }
+            for (var param:PsiTreeUtil.findChildrenOfType(file,Parameter.class)) WidgetCallbackTypeProvider.infer(param,widgets);
             for (var ref:PsiTreeUtil.findChildrenOfType(file,MethodReference.class)) resolver.models(ref.getClassReference());
             eq("incomplete PHP handled: "+code,true,true);
         }

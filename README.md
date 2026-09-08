@@ -21,13 +21,13 @@ require an AI service or an AI API key.
 | Primary IDE | PhpStorm 2026.2, platform `262.*` |
 | Local SDK used | PhpStorm 2026.2.2, build `262.10315.130` |
 | Runtime / build JDK | Java 25 |
-| Plugin version | `1.1.0-rc.1` — release candidate |
+| Plugin version | `1.1.0-rc.2` — release candidate |
 | IntelliJ IDEA | Requires compatible PHP and Database Tools plugins; not separately verified |
 
 The runtime plugin name remains **Yii2 Support Extended**, with ID
 `com.yii2supportExtended`. The repository name does not change installed-plugin identity.
 Full IDE integration testing and the official Plugin Verifier are still pending;
-see [verification](docs/verification/1.1.0-rc.1.md) and [the development plan](DEVELOPMENT_PLAN.md).
+see [verification](docs/verification/1.1.0-rc.2.md) and [the development plan](DEVELOPMENT_PLAN.md).
 
 ## Features
 
@@ -71,13 +71,43 @@ based on public relation getters using `hasOne` or `hasMany`; SQL strings and JO
 mode arguments are excluded. Renaming one segment preserves the rest of the path
 and any JOIN alias.
 
+### GridView and DetailView in 1.1.0-rc.2
+
+```php
+$query = User::find()->where(['active' => 1]);
+$provider = new ActiveDataProvider(['query' => $query]);
+
+GridView::widget([
+    'dataProvider' => $provider,
+    'columns' => [
+        'email:email:Email address',
+        'profile.city',
+        ['value' => fn($model) => $model->email],
+    ],
+]);
+```
+
+Column completion now follows `ActiveDataProvider.query`, including local provider,
+query and provider-config variables, named arguments and widget/provider subclasses.
+It offers public/PHPDoc properties and readable getters, follows ActiveRecord relations
+and distinguishes attribute, formatter and label portions of shorthand strings.
+`filterAttribute` uses the filter model; row callbacks use the provider's model.
+DetailView uses its `model`, including non-ActiveRecord objects.
+
+Only the first `value` callback parameter receives an inferred model type. Closure
+and arrow-function parameters with explicit type declarations or `@param` annotations
+are preserved. `asArray(true)` produces array rows; a final `asArray(false)` restores
+object rows. Dynamic flags remain unresolved. HTML options, labels, unrelated widgets
+and non-DataColumn classes are excluded. Column-option completion supplies names
+without inserting a closure or overwriting an existing configured value.
+
 ## Installation
 
 1. Build the plugin using one of the methods below, or use a matching ZIP from a
    published release of this fork when available. GitHub **Code → Download ZIP**
    downloads source code, not an installable plugin.
 2. Open **Settings → Plugins → ⚙ → Install Plugin from Disk…**.
-3. Select `build/distributions/yii2-support-extended-1.1.0-rc.1.zip` and restart the IDE.
+3. Select `build/distributions/yii2-support-extended-1.1.0-rc.2.zip` and restart the IDE.
    Do not unpack the ZIP.
 
 ## Build with Docker
@@ -128,9 +158,9 @@ A prepared workflow is not evidence of a successful CI run.
 
 ## Verification and known limits
 
-The recorded local RC passed **148 pure-logic checks**, **52 real PHP PSI checks**
-and static JVM reference checks for **182 plugin classes** against **1272 SDK jars**.
-The [dated artifact report](docs/verification/1.1.0-rc.1.md) records the exact ZIP and hash.
+The recorded local RC passed **148 pure-logic checks**, **119 PHP PSI checks**
+and static JVM reference checks for **190 plugin classes** against **1272 SDK jars**.
+The [dated artifact report](docs/verification/1.1.0-rc.2.md) records the exact ZIP and hash.
 
 - PHP PSI tests use the real PhpStorm parser and reference manipulator with a supplied
   class table. They do not run the full PHP index, completion UI or complete IDE
@@ -139,8 +169,9 @@ The [dated artifact report](docs/verification/1.1.0-rc.1.md) records the exact Z
   replace JetBrains Plugin Verifier or runtime testing in an activated IDE profile.
 - Gradle/Docker execution, Plugin Verifier and full IDE integration are not yet verified.
 - Arbitrary custom Query scopes, ambiguous assignments and dynamic factories may not resolve.
-- GridView model inference from `dataProvider`, expanded controller-to-view type flow,
-  config merging/DI and configurable i18n sources remain planned work.
+- Providers returned by arbitrary factories/search methods, post-construction provider/query mutations,
+  widget configs held in variables and custom Query defaults/scopes need further analysis.
+- Expanded controller-to-view type flow, config merging/DI and configurable i18n sources remain planned work.
 
 The plugin analyzes PHP statically. Migration actions are explicit user actions
 that execute the configured Yii command.

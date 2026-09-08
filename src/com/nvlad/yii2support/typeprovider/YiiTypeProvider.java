@@ -3,7 +3,6 @@ package com.nvlad.yii2support.typeprovider;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.util.indexing.FileBasedIndex;
 import com.jetbrains.php.PhpIndex;
 import com.jetbrains.php.lang.psi.elements.*;
 import com.jetbrains.php.lang.psi.elements.impl.VariableImpl;
@@ -12,7 +11,6 @@ import com.jetbrains.php.lang.psi.resolve.types.PhpTypeProvider4;
 import com.nvlad.yii2support.common.ClassUtils;
 import com.nvlad.yii2support.common.MethodUtils;
 import com.nvlad.yii2support.common.PsiUtil;
-import com.nvlad.yii2support.configurations.ComponentsIndex;
 import com.nvlad.yii2support.objectfactory.ObjectFactoryUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,7 +24,6 @@ import java.util.Set;
 public class YiiTypeProvider implements PhpTypeProvider4 {
     final static char TRIM_KEY = '\u0197';
     final static char TRIM_KEY2 = '\u0199';
-    final static char TRIM_KEY3 = '\u0193';
 
     @Override
     public char getKey() {
@@ -58,26 +55,6 @@ public class YiiTypeProvider implements PhpTypeProvider4 {
             if (fieldName != null && psiElement.getContainingFile() != null
                     && com.nvlad.yii2support.common.FileUtil.getVirtualFile(psiElement.getContainingFile()) != null) {
                 return new PhpType().add("#" + this.getKey() + TRIM_KEY2 + fieldName + TRIM_KEY2 + java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(com.nvlad.yii2support.common.FileUtil.getVirtualFile(psiElement.getContainingFile()).getUrl().getBytes(java.nio.charset.StandardCharsets.UTF_8)));
-            }
-        }else if(psiElement instanceof Parameter){
-            PsiElement el = walkParents(psiElement,5); // Get "'value' => function()" element
-            if(el instanceof ArrayHashElement){
-                String s = getHashKeyContents(el);
-                if(s != null && s.equals("value")){
-                    PsiElement top = walkParents(el,6); // Get config array of widget
-                    if(top instanceof ArrayCreationExpression){
-                        for (PsiElement conf : top.getChildren()){
-                            String key = getHashKeyContents(conf);
-                            if(key != null && (key.equals("model") || key.equals("filterModel"))){
-                                PsiElement val = ((ArrayHashElement) conf).getValue();
-                                if(val instanceof Variable){
-                                    String signature = ((Variable) val).getSignature();
-                                    return new PhpType().add("#" + this.getKey() + TRIM_KEY3 + signature + TRIM_KEY3);
-                                }
-                            }
-                        }
-                    }
-                }
             }
         }
         return null;
@@ -120,17 +97,6 @@ public class YiiTypeProvider implements PhpTypeProvider4 {
                 for (String className : com.nvlad.yii2support.configurations.ComponentResolver.classes(project, origin, fieldName)) {
                     for (PhpClass phpClass : PhpIndex.getInstance(project).getAnyByFQN(className)) {
                         phpType.add(phpClass.getType());
-                    }
-                }
-            }else{
-                trimIndexStart = s.indexOf(TRIM_KEY3);
-                trimIndexEnd = s.lastIndexOf(TRIM_KEY3);
-                if (trimIndexStart > -1 && trimIndexStart < trimIndexEnd) {
-                    String signature = s.substring(trimIndexStart + 1, trimIndexEnd);
-                    for (PhpNamedElement elem : PhpIndex.getInstance(project).getBySignature(signature)) {
-                        if(elem instanceof PhpClass) {
-                            phpType.add(elem.getType());
-                        }
                     }
                 }
             }
@@ -186,26 +152,4 @@ public class YiiTypeProvider implements PhpTypeProvider4 {
         return null;
     }
 
-    @Nullable
-    private PsiElement walkParents(PsiElement el, int level) {
-        PsiElement element = el;
-        for (int i = 0; i < level; i++) {
-            if (element == null) {
-                return null;
-            }
-            element = element.getParent();
-        }
-        return element;
-    }
-
-    @Nullable
-    private String getHashKeyContents(PsiElement e) {
-        if (e instanceof ArrayHashElement) {
-            PhpPsiElement key = ((ArrayHashElement) e).getKey();
-            if (key instanceof StringLiteralExpression) {
-                return ((StringLiteralExpression) key).getContents();
-            }
-        }
-        return null;
-    }
 }

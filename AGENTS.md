@@ -6,7 +6,7 @@
 - Read `docs/PROJECT_MEMORY.md` for the latest handoff, `DEVELOPMENT_PLAN.md` for scope,
   and the relevant source before implementation. Memory is context, not proof.
 - This is a Java plugin for JetBrains IDEs, not a PHP application or a Codex plugin.
-- `origin` is `https://github.com/byscrimm/phpstorm-yii2-support.git`;
+- `origin` is `git@github.com:byscrimm/phpstorm-yii2-support.git`;
   `upstream` is `https://github.com/vxdy/Yii2-Support-Extended.git`.
   The default branch is `master`; use `codex/<topic>` for new agent branches.
 - Preserve existing user changes and upstream history. Do not force-push or publish
