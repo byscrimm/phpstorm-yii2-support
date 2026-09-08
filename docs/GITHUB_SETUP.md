@@ -67,12 +67,17 @@ merges PRs, publishes releases, changes visibility or deletes repository content
   Secret Protection and push protection were already on and remain enabled.
 - Actions default token is read-only; create/approve PR permission off. Full-SHA
   pinning is enforced in repository settings as well as policy checks.
+- Active `Immutable version tags` ruleset targets `v*`: updates, deletions and
+  force pushes blocked, no bypass actors, new tag creation allowed.
+- Topics: yii2, phpstorm-plugin, intellij-plugin, ai-assisted-development.
 - No release/tag workflow or attestation has been executed. Dependabot configuration
   and workflow files are in the PR, awaiting merge; CodeQL is not configured.
 
 The first CI report exposed an inherited gradlew.bat normalization issue (dirty
 checkout despite fresh checkout). The follow-up normalizes its Git content and
-checks source cleanliness in CI. Consult the current PR checks for the latest result.
+checks source cleanliness in CI. The [corrected CI run](https://github.com/byscrimm/phpstorm-yii2-support/actions/runs/34260853315)
+passed with a clean checkout; exact ZIP evidence is in verification/1.1.0-rc.3.md.
+Consult the current PR checks for later documentation-only commits.
 
 Adding workflows to an unmerged branch does not install them on master. The first
 PR can run candidate workflows; branch protection is enabled only after their names

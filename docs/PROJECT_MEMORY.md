@@ -173,6 +173,11 @@ First successful CI: https://github.com/byscrimm/phpstorm-yii2-support/actions/r
 It passed Docker, 148 core + 119 PSI checks and Plugin Verifier on Linux x64, but
 the report correctly flagged a dirty checkout: inherited gradlew.bat CRLF content
 was not normalized in Git despite .gitattributes. Renormalized that file and added
-a clean-checkout CI policy. The follow-up CI result belongs to its own run/artifact.
+a clean-checkout CI policy. Follow-up run 34260853315 passed with clean source
+(PR head 84a5b1c, tested merge affffdf9); exact ZIP hash and artifact link are in
+verification/1.1.0-rc.3.md. Later documentation-only commits do not change that evidence.
+The active `Immutable version tags` ruleset blocks updates/deletion/force pushes
+for v*, has no bypass actors, and permits creating new tags. Topics are yii2,
+phpstorm-plugin, intellij-plugin and ai-assisted-development.
 No tags/releases/Marketplace publication have been created. Workflows and Dependabot
 remain on the PR branch until merge; remote settings are already applied.
