@@ -9,6 +9,10 @@ from release_tools import ROOT, changelog_section, properties, validate_version
 
 
 def main():
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        status = subprocess.check_output(["git", "status", "--porcelain", "--untracked-files=normal"], cwd=ROOT, text=True).strip()
+        if status:
+            raise ValueError("CI checkout must be clean:\n" + status)
     version = validate_version(properties()["pluginVersion"])
     changelog_section(version, (ROOT / "CHANGELOG.md").read_text())
     paths = subprocess.check_output(["git", "ls-files", "-z"], cwd=ROOT).decode().split("\0")

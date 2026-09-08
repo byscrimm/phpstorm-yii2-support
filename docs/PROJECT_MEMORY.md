@@ -139,10 +139,9 @@ post-construction provider/query mutations, widget config variables and custom Q
 defaults/scopes remain unsupported. Full IDE callback type/completion integration also remains unverified. See the
 checkboxes in `DEVELOPMENT_PLAN.md`; these are plans, not advertised completed features.
 
-Repository setup commit `cb150d9` was pushed to origin/master through SSH. The RC.2
-increment is included in the local `build/docker-packaging` branch; do not assume it has been
-pushed or released. GitHub About changes, repository settings, bot installation and
-Marketplace publication must be reported separately when they actually occur.
+Repository setup commit `cb150d9` is on origin/master. The RC.2 increment and Docker
+packaging are included in the pushed `build/repository-workflow` branch and draft
+PR #1. No candidate changes have been merged into master or released.
 
 ## Repository process and workstation boundary
 
@@ -162,5 +161,18 @@ GitHub web session is now authenticated. Observed/applied on 2026-09-08: Issues 
 release immutability enabled; squash-only merge with PR title/description; merged branch
 cleanup enabled; private vulnerability reporting, dependency graph and Dependabot alerts
 enabled. Secret Protection and push protection were already enabled and remain so.
-PR/CI/master protection status is recorded after the actual bootstrap run; do not infer it
-from configuration files. No tags/releases/Marketplace publication have been created.
+About now identifies features, fork and AI maintenance. Default Actions token is read-only;
+Actions cannot create/approve PRs, and full commit SHA pinning is enforced remotely.
+master protection requires PRs, resolved conversations, linear history, up-to-date
+branches and both GitHub Actions checks: `checks / Repository policy` and
+`checks / Build and verify`. No admin bypass, force push or deletion is allowed.
+Required independent approvals: zero for this single-maintainer repository.
+
+Draft PR: https://github.com/byscrimm/phpstorm-yii2-support/pull/1
+First successful CI: https://github.com/byscrimm/phpstorm-yii2-support/actions/runs/34260061922
+It passed Docker, 148 core + 119 PSI checks and Plugin Verifier on Linux x64, but
+the report correctly flagged a dirty checkout: inherited gradlew.bat CRLF content
+was not normalized in Git despite .gitattributes. Renormalized that file and added
+a clean-checkout CI policy. The follow-up CI result belongs to its own run/artifact.
+No tags/releases/Marketplace publication have been created. Workflows and Dependabot
+remain on the PR branch until merge; remote settings are already applied.

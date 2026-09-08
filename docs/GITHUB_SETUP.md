@@ -1,6 +1,7 @@
 # GitHub settings and activation
 
-These are desired settings, not a claim that they are already enabled. SSH Git
+The checklist below defines desired settings; the activation record identifies
+what has actually been applied. SSH Git
 authentication permits push/fetch; GitHub settings and PR/release APIs require a
 separate authenticated web session or GitHub CLI authorization.
 
@@ -50,6 +51,28 @@ and update that policy explicitly, preserving unrelated restrictions. It never
 merges PRs, publishes releases, changes visibility or deletes repository content.
 
 ## Bootstrap and publication limits
+
+### Activation record — 2026-09-08
+
+- Draft [PR #1](https://github.com/byscrimm/phpstorm-yii2-support/pull/1) is open;
+  [first CI run](https://github.com/byscrimm/phpstorm-yii2-support/actions/runs/34260061922)
+  passed policy, Docker tests/packaging and official Plugin Verifier.
+- master protection is active: PR required, zero independent approvals, resolved
+  conversations, linear history, up-to-date branch, no admin bypass, force pushes
+  or deletion. Both required checks accept results from GitHub Actions only:
+  `checks / Repository policy` and `checks / Build and verify`.
+- Squash-only merge, PR title/description, automatic branch deletion; auto-merge off.
+- About updated from .github/about.txt; Issues and release immutability enabled.
+- Private vulnerability reporting, dependency graph and Dependabot alerts enabled;
+  Secret Protection and push protection were already on and remain enabled.
+- Actions default token is read-only; create/approve PR permission off. Full-SHA
+  pinning is enforced in repository settings as well as policy checks.
+- No release/tag workflow or attestation has been executed. Dependabot configuration
+  and workflow files are in the PR, awaiting merge; CodeQL is not configured.
+
+The first CI report exposed an inherited gradlew.bat normalization issue (dirty
+checkout despite fresh checkout). The follow-up normalizes its Git content and
+checks source cleanliness in CI. Consult the current PR checks for the latest result.
 
 Adding workflows to an unmerged branch does not install them on master. The first
 PR can run candidate workflows; branch protection is enabled only after their names
