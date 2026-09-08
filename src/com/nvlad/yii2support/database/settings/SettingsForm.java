@@ -34,6 +34,18 @@ public class SettingsForm implements Configurable {
         myProject = project;
 
         settings = getSettings();
+        mainPanel = new JPanel(new java.awt.BorderLayout(0, 16));
+        tablePanel = new JPanel(new java.awt.GridLayout(3, 2, 12, 8));
+        tablePrefixTextbox = new JTextField(20);
+        insertTableNamesWithCheckBox = new JCheckBox("Insert {{%table}} notation");
+        DbSourceSelect = new JComboBox<>();
+        DbSourceSelect.addItem(new DbSelectItem("", "All data sources"));
+        tablePanel.add(new JLabel("Table prefix:")); tablePanel.add(tablePrefixTextbox);
+        tablePanel.add(new JLabel("Data source:")); tablePanel.add(DbSourceSelect);
+        tablePanel.add(insertTableNamesWithCheckBox); tablePanel.add(new JLabel());
+        createUIComponents();
+        mainPanel.add(tablePanel, java.awt.BorderLayout.NORTH);
+        mainPanel.add(migrationPanel, java.awt.BorderLayout.CENTER);
 
         tablePrefixTextbox.addKeyListener(new KeyAdapter() {
             @Override

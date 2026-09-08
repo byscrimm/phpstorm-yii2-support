@@ -53,68 +53,8 @@ class MessageLookupElement extends LookupElement {
     }
 
     @Override
-    public void handleInsert(InsertionContext context) {
-        super.handleInsert(context);
-
-        int suffixLength = myElement.getText().length() - 21 - myElement.getText().lastIndexOf("IntellijIdeaRulezzz ");
-        int blockStart = context.getSelectionEndOffset();
-        context.getDocument().deleteString(blockStart, blockStart + suffixLength);
-
-        if (myMessage.getValue() instanceof StringLiteralExpression) {
-            ArrayList<String> matches = new ArrayList<>();
-
-            StringLiteralExpression value = (StringLiteralExpression) myMessage.getValue();
-
-            Pattern pointers = Pattern.compile("\\{([\\w\\d]+)[},]", Pattern.MULTILINE | Pattern.UNICODE_CASE);
-            Matcher matcher = pointers.matcher(value.getContents());
-            while (matcher.find()) {
-                String match = matcher.group(1);
-
-                if (!matches.contains(match)) {
-                    matches.add(match);
-                }
-            }
-
-            if (matches.size() > 0) {
-                ParameterList parameterList = (ParameterList) myElement.getParent();
-                if (parameterList.getParameters().length == 2) {
-
-                    StringBuilder params = new StringBuilder();
-                    if (matches.size() == 1 && matches.get(0).equals("0")) {
-                        params = new StringBuilder(", []");
-                    } else {
-                        for (String match : matches) {
-                            if (params.length() > 0) {
-                                params.append(", ");
-                            }
-                            params = new StringBuilder(params.toString().concat("'" + match + "' => "));
-                        }
-                        params = new StringBuilder(", [" + params + "]");
-                    }
-
-                    context.getDocument().insertString(context.getSelectionEndOffset() + 1, params.toString());
-                }
-            } else {
-                cleanParams(context);
-            }
-        } else {
-            cleanParams(context);
-        }
-    }
-
-    @Override
     public AutoCompletionPolicy getAutoCompletionPolicy() {
         return AutoCompletionPolicy.GIVE_CHANCE_TO_OVERWRITE;
     }
 
-    private void cleanParams(InsertionContext context) {
-        ParameterList parameterList = (ParameterList) myElement.getParent();
-        if (parameterList.getParameters().length == 3) {
-            PsiElement[] parameters = parameterList.getParameters();
-            int blockStart = context.getSelectionEndOffset() + 1;
-            int paramSpace = parameters[2].getTextRange().getStartOffset() - parameters[1].getTextRange().getEndOffset();
-            int blockLength = parameters[2].getTextLength() + paramSpace;
-            context.getDocument().deleteString(blockStart, blockStart + blockLength);
-        }
-    }
 }

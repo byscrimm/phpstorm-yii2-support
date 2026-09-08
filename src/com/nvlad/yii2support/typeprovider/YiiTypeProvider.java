@@ -55,8 +55,9 @@ public class YiiTypeProvider implements PhpTypeProvider4 {
             }
         }else if(psiElement instanceof FieldReference) {
             String fieldName = PsiUtil.getYiiAppField((FieldReference) psiElement);
-            if (fieldName != null) {
-                return new PhpType().add("#" + this.getKey() + TRIM_KEY2 + fieldName + TRIM_KEY2);
+            if (fieldName != null && psiElement.getContainingFile() != null
+                    && com.nvlad.yii2support.common.FileUtil.getVirtualFile(psiElement.getContainingFile()) != null) {
+                return new PhpType().add("#" + this.getKey() + TRIM_KEY2 + fieldName + TRIM_KEY2 + java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(com.nvlad.yii2support.common.FileUtil.getVirtualFile(psiElement.getContainingFile()).getUrl().getBytes(java.nio.charset.StandardCharsets.UTF_8)));
             }
         }else if(psiElement instanceof Parameter){
             PsiElement el = walkParents(psiElement,5); // Get "'value' => function()" element
@@ -111,7 +112,12 @@ public class YiiTypeProvider implements PhpTypeProvider4 {
                 String fieldName = s.substring(trimIndexStart + 1, trimIndexEnd);
                 final GlobalSearchScope scope = GlobalSearchScope.projectScope(project);
 
-                for (String className : FileBasedIndex.getInstance().getValues(ComponentsIndex.identity, fieldName, scope)) {
+                com.intellij.openapi.vfs.VirtualFile origin;
+                try {
+                    String url = new String(java.util.Base64.getUrlDecoder().decode(s.substring(trimIndexEnd + 1)), java.nio.charset.StandardCharsets.UTF_8);
+                    origin = com.intellij.openapi.vfs.VirtualFileManager.getInstance().findFileByUrl(url);
+                } catch (IllegalArgumentException ex) { return null; }
+                for (String className : com.nvlad.yii2support.configurations.ComponentResolver.classes(project, origin, fieldName)) {
                     for (PhpClass phpClass : PhpIndex.getInstance(project).getAnyByFQN(className)) {
                         phpType.add(phpClass.getType());
                     }
@@ -135,6 +141,7 @@ public class YiiTypeProvider implements PhpTypeProvider4 {
     @NotNull
     private PhpPsiElement getArrayCreationByVariableRef(PhpPsiElement firstParam) {
         Collection<? extends PhpNamedElement> localResolvedVariables = ((VariableImpl) firstParam).resolveLocal();
+        if (localResolvedVariables.isEmpty()) return firstParam;
         PhpNamedElement firstElem = localResolvedVariables.iterator().next();
         if (firstElem instanceof Variable) {
             Variable variableDecl = (Variable)firstElem;

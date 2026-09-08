@@ -160,7 +160,7 @@ public class MigrationCommandDialog extends DialogWrapper {
         myMigrationPathPanel.getData().add(new TableModelStringEntity("app/migrations"));
         myPanel.add(myMigrationPathPanel);
 
-        List<String> namespaces = MigrationUtil.migrationPaths(service.getMigrations());
+        List<String> namespaces = MigrationUtil.migrationNamespaces(service.getMigrations());
         Collections.sort(namespaces);
         myMigrationNamespacesPanel = new StringListEditPanel("Migration Namespaces", namespaces);
         myMigrationNamespacesPanel.setPreferredSize(new Dimension(-1, 140));

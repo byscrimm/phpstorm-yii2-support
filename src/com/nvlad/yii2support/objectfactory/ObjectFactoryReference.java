@@ -15,20 +15,20 @@ import org.jetbrains.annotations.Nullable;
 public class ObjectFactoryReference extends PsiReferenceBase<PsiElement> {
     ObjectFactoryReference(@NotNull PsiElement element)
     {
-        super(element, element.getTextRange());
+        super(element);
     }
 
     @Nullable
     @Override
     public PsiElement resolve() {
-        PsiElement possibleArrayCreation = myElement.getParent().getParent().getParent();
+        PsiElement possibleArrayCreation = com.intellij.psi.util.PsiTreeUtil.getParentOfType(myElement, ArrayCreationExpression.class);
         if (possibleArrayCreation instanceof ArrayCreationExpression) {
             ArrayCreationExpression  arrayCreation = (ArrayCreationExpression)possibleArrayCreation;
             PsiDirectory dir = myElement.getContainingFile().getContainingDirectory();
             PhpClass phpClass = ObjectFactoryUtils.findClassByArrayCreation(arrayCreation, dir);
 
             if (phpClass != null) {
-                return ClassUtils.findWritableField(phpClass, myElement.getText());
+                return ClassUtils.findWritableField(phpClass, ((com.jetbrains.php.lang.psi.elements.StringLiteralExpression) myElement).getContents());
             }
 
         }

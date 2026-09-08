@@ -26,6 +26,13 @@ public class SettingsForm implements Configurable {
         myProject = project;
         settings = Yii2SupportSettings.getInstance(project);
 
+        mainPanel = new JPanel(new java.awt.BorderLayout(0, 12));
+        yiiRootPath = new TextFieldWithBrowseButton();
+        yiiRootPathLabel = new JLabel("Yii root directory:");
+        JPanel row = new JPanel(new java.awt.BorderLayout(12, 0));
+        row.add(yiiRootPathLabel, java.awt.BorderLayout.WEST);
+        row.add(yiiRootPath, java.awt.BorderLayout.CENTER);
+        mainPanel.add(row, java.awt.BorderLayout.NORTH);
         yiiRootPathLabel.setLabelFor(yiiRootPath.getTextField());
         yiiRootPath.setButtonEnabled(true);
         FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(false, true, false, false, false, false);

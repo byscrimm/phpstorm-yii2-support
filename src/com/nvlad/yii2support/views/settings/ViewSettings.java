@@ -27,6 +27,16 @@ public class ViewSettings implements Configurable {
         myProject = project;
         mySettings = Yii2SupportSettings.getInstance(project);
 
+        mainPanel = new JPanel(new java.awt.BorderLayout(0, 12));
+        viewPathMap = new ThemePathMapPanel(project);
+        defaultViewClass = new JTextField(30);
+        defaultViewFileExt = new JComboBox<>(new String[]{"php", "twig", "tpl"});
+        defaultViewFileExt.setEditable(true);
+        JPanel fields = new JPanel(new java.awt.GridLayout(2, 2, 12, 8));
+        fields.add(new JLabel("View class:")); fields.add(defaultViewClass);
+        fields.add(new JLabel("View extension:")); fields.add(defaultViewFileExt);
+        mainPanel.add(fields, java.awt.BorderLayout.NORTH);
+        mainPanel.add(viewPathMap, java.awt.BorderLayout.CENTER);
         currentThemePathMap = new ArrayList<>(mySettings.viewPathMap.entrySet());
         ((ThemePathMapPanel) viewPathMap).setData(new ArrayList<>(mySettings.viewPathMap.entrySet()));
 

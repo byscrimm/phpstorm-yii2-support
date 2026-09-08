@@ -25,7 +25,7 @@ public class MigrationHistory extends CommandBase {
 
     public MigrationHistory(Project project, MigrateCommand command, List<Migration> migrations) {
         super(project, command);
-        myMigrations = migrations;
+        myMigrations = new ArrayList<>(migrations);
     }
 
     @Override
@@ -49,10 +49,10 @@ public class MigrationHistory extends CommandBase {
                 migration.applyAt = null;
             }
 
-            MigrationPanel component = (MigrationPanel) myComponent.getParent().getParent().getParent();
             ApplicationManager.getApplication().invokeLater(() -> {
-                component.updateTree();
-                component.updateUI();
+                if (myProject.isDisposed() || myComponent == null) return;
+                java.awt.Container parent = SwingUtilities.getAncestorOfClass(MigrationPanel.class, myComponent);
+                if (parent instanceof MigrationPanel component) component.updateTree();
             });
         } catch (ExecutionException e) {
             YiiCommandLineUtil.processError(e);
@@ -62,7 +62,7 @@ public class MigrationHistory extends CommandBase {
     @Override
     void processOutput(String text) {
         Matcher matcher = historyEntryPattern.matcher(text);
-        if (matcher.find()) {
+        while (matcher.find()) {
             String migrationNamespace = "\\" + StringUtil.defaultIfEmpty(matcher.group(2), "");
             String migrationName = matcher.group(3);
             Date date = MigrationUtil.parseApplyDate(matcher.group(1));
@@ -70,8 +70,8 @@ public class MigrationHistory extends CommandBase {
         }
 
         if (text.contains("No migration has been done before.")) {
-            if (treeNodeMap == null) {
-                findTreeNode(myMigrations.get(0));
+            if (treeNodeMap == null && !myMigrations.isEmpty()) {
+                repaintMigrationNode(myMigrations.get(0));
 
             }
         }

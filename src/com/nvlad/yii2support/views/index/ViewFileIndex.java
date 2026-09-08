@@ -7,8 +7,8 @@ import com.intellij.util.io.DataExternalizer;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import com.jetbrains.php.lang.PhpFileType;
-import com.jetbrains.smarty.SmartyFileType;
-import com.jetbrains.twig.TwigFileType;
+
+
 import com.nvlad.yii2support.views.entities.ViewInfo;
 import com.nvlad.yii2support.views.entities.ViewResolve;
 import com.nvlad.yii2support.views.util.ViewUtil;
@@ -188,11 +188,11 @@ public class ViewFileIndex extends FileBasedIndexExtension<String, ViewInfo> {
                 return true;
             }
 
-            if (smartySupported && virtualFile.getFileType() == SmartyFileType.INSTANCE) {
+            if (smartySupported && "Smarty".equalsIgnoreCase(virtualFile.getFileType().getName())) {
                 return true;
             }
 
-            return twigSupported && virtualFile.getFileType() == TwigFileType.INSTANCE;
+            return twigSupported && "Twig".equalsIgnoreCase(virtualFile.getFileType().getName());
         }
     }
 }

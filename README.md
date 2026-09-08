@@ -1,127 +1,166 @@
-Notes: This fork works for the current PHPStorm Version, although some Features are not working.
+# PhpStorm Yii2 Support
 
-IntelliJ IDEA / PhpStorm Yii2 Support for PHPStorm 2023 - 2026 
-=====================================
+English | [Русский](README.ru.md)
 
-Fork of https://github.com/nvlad/yii2support
+**Yii2 support for PhpStorm / IntelliJ IDEA:** completion, navigation, ActiveRecord
+relations, views, configuration, routes, translations and migrations.
 
-Features
---------
+This repository is a fork of [vxdy/Yii2-Support-Extended](https://github.com/vxdy/Yii2-Support-Extended),
+which is based on [nvlad/yii2support](https://github.com/nvlad/yii2support).
+**All updates, fixes, enhancements and documentation changes in this fork are
+developed with AI assistance under the direction of the repository maintainer.**
+See [AI-assisted development](AI_DEVELOPMENT.md) for the development process and attribution.
 
-### Views
-- View template names and parameters completion
-- Add view parameters after completion
-- Inspection for missing view templates
-- QuickFix for missing view templates
-- Jump to View file (go to declaration)
-- Inspection for required and unused template parameters
-- QuickFix for required and unused template parameters
-- Updates path to view template when file is moved
+AI assistance is used to maintain the project. The plugin's Yii2 analysis does not
+require an AI service or an AI API key.
 
-### i18n
-- Code completion
-- Generate params array
+## Compatibility and status
 
-### Configuration arrays
-Code completion for Yii configuration arrays. Works both in configuration files and on object instantiation.
-Following cases are supported:
+| Item | Current target |
+| --- | --- |
+| Primary IDE | PhpStorm 2026.2, platform `262.*` |
+| Local SDK used | PhpStorm 2026.2.2, build `262.10315.130` |
+| Runtime / build JDK | Java 25 |
+| Plugin version | `1.1.0-rc.1` — release candidate |
+| IntelliJ IDEA | Requires compatible PHP and Database Tools plugins; not separately verified |
 
-- Array in `$config` parameter in `yii\base\Object` or its descendants constructor
-- Array has a `class` key with valid class representation: fully qualified name as string, `ClassName::class` or `Class::className()`
-- Array is a value of a key that corresponds to standard Yii classes (like `db`, `request`, `mailer`, and so on), and
-  a file with this array is located within `config` directory
-- `WidgetClass::widget()` and `WidgetClass::begin` calls in case `WidgetClass` is a descendant of `yii\base\Widget`
-- `$field->widget()` method call on `yii\widgets\ActiveField` and its descendants
-- Inside array in `GridView`, `columns` key
-- `Yii::createObject` method
+The runtime plugin name remains **Yii2 Support Extended**, with ID
+`com.yii2supportExtended`. The repository name does not change installed-plugin identity.
+Full IDE integration testing and the official Plugin Verifier are still pending;
+see [verification](docs/verification/1.1.0-rc.1.md) and [the development plan](DEVELOPMENT_PLAN.md).
 
-Go To Declaration, Rename, Find usages and Help popups work whenever code completion works.
+## Features
 
-### Database support
-**Database connection is required**
+| Area | Available support |
+| --- | --- |
+| ActiveRecord relations | Completion in `with`, `joinWith`, `innerJoinWith`, `getRelation` and `via`; dotted paths, JOIN aliases and callback keys |
+| Relation navigation | References to each relation getter in a path, segment rename handling and a getter usage-search contributor |
+| Query types | Model resolution in supported query chains, local variables and explicit `ActiveQuery`; `one()` / `all()` type support and `asArray` mode handling |
+| Views | Template name/parameter completion, navigation, missing-view and parameter inspections and quick fixes |
+| Configuration | Property completion/references in supported config arrays, `Yii::createObject()`, application components and widget options |
+| Forms and models | Model attributes in ActiveForm/HTML helpers, validation `rules()` and `attributeLabels()` completion |
+| Database | Schema-assisted table/column completion, ActiveRecord inspections and SQL parameter completion/checks |
+| Routes | Route and action-parameter completion, controller/action navigation in supported layouts |
+| Translations | Category/message completion from PHP translation catalogs |
+| Migrations | History, apply/undo/redo actions, command output and selected datasource synchronization |
 
-#### Table Prefix support
-Use plugin settings window to set up table prefix
+Database features need a configured IDE datasource. Configure the Yii root, views,
+datasource and migration commands in **Settings → PHP → Yii2 Support**.
+Some features are inherited and still need full IDE regression coverage. Dynamic
+PHP constructs may remain unresolved rather than receiving guessed results.
 
-#### ActiveQuery
-- Code completion for `ActiveQuery` (`ActiveRecord::find()->where` for example)  
-- Code completion inside `ActiveQuery` linked to ActiveRecord  
-- Inspection in case if `ActiveQuery` not linked to `ActiveRecord`
+### Relations in 1.1
 
-#### ActiveRecord
-- Code completion for `ActiveRecord` `findAll()`, `findOne()` and so on methods  
-- Undetectable `ActiveRecord` table inspection  
-- Code completion in relations methods  
+```php
+User::find()->with(['orders.items.product']);
 
-#### Migrations
-- Code completion for migrations  
+User::find()->joinWith([
+    'orders AS o' => function ($query) {
+        $query->andWhere(['o.status' => 1]);
+    },
+]);
 
-#### Condition parameters
-- Condition parameters code completion  
-- Condition parameters inspection  
+$query = User::find()->where(['active' => 1]);
+$query->with('orders');
+```
 
-#### Properties
-- Synchronize properties with database  
-- Unused properties inspection
-  
-### Form support
-- Complete model attribute for `$form->field($model, ...)` & `Html::active*($model, ...)` methods
+The resolver follows supported query chains, local assignments, inherited relation
+getters and explicit `new ActiveQuery(User::class)`. It recognizes named arguments
+in relation contexts and `self::class` / `static::class` targets. Suggestions are
+based on public relation getters using `hasOne` or `hasMany`; SQL strings and JOIN
+mode arguments are excluded. Renaming one segment preserves the rest of the path
+and any JOIN alias.
 
-### Validators support
-- Autocomplete for arrays in model's rules() method
+## Installation
 
-### Type resolution
-- Yii::createMethod()
-- one() and all() methods of ActiveQuery
+1. Build the plugin using one of the methods below, or use a matching ZIP from a
+   published release of this fork when available. GitHub **Code → Download ZIP**
+   downloads source code, not an installable plugin.
+2. Open **Settings → Plugins → ⚙ → Install Plugin from Disk…**.
+3. Select `build/distributions/yii2-support-extended-1.1.0-rc.1.zip` and restart the IDE.
+   Do not unpack the ZIP.
 
-### Migration tool
-- Migrations UI Navigator
-- Apply/Undo/Redo migrations from UI
-- Support Remote CLI for Docker, Vagrant, VM, Remote servers
-- Sync IDE DataBase schema after Apply/Undo/Redo migration(s)
-- View command execution output
+## Build with Docker
 
-## Inspections
-Inspections can be disabled inline `/** @noinspection MissedViewInspection */`.
+Docker with BuildKit and dependency-repository access is required:
 
-### Views
-- `MissedViewInspection`  
-Reports missing view templates
-- `RequireParameterInspection`  
-Analyzes SQL condition and checks if all declared parameters are set
-- `UnusedParameterInspection`  
-Detecting unused View parameters
-- `ViewMissedPhpDocInspection`  
-Inspect PhpDoc for incoming parameters
+```sh
+make docker
+```
 
-### Object Factory
-- `ObjectFactoryMissedFieldInspection`  
-Reports missing object properties
+The Java 25 build runs Gradle checks and exports the installable ZIP to
+`build/distributions`. The Docker path is prepared but has not yet been executed
+in the recorded verification environment. It does not run Plugin Verifier.
 
-### Database
-- `MissedParamInspection`  
-Analyzes SQL condition and checks if all declared parameters are set
--  `PropertiesInspection`  
-Detects properties do not correspond to class fields or table columns in case of ActiveRecord
-- `UndetectableTableInspection`  
-Finds ActiveRecord table and check if it exists in database connections
-- `MissingActiveRecordInActiveQueryInspection`  
-Check if ActiveQuery correctly linked to ActiveRecord
+## Build using installed PhpStorm
 
-Installation
-------------
-- Download the .zip from Releases
-- In PHPStorm go to Settings -> Plugins
-- Click the three Dots next to "Installed" at the top
-- Press "Install Plugin from Disk"
-- Choose the Downloaded .zip File
-- Click Apply
+With Python 3, PhpStorm 2026.2 and JDK 25, the offline path uses the installed SDK:
 
-Contributing
-------------
-The plugin is [Open Source](LICENSE.md). You may contribute either by testing and or by sending pull requests. 
+```sh
+python3 tools/build-offline.py --test --psi-test
+python3 tools/verify-offline.py
+```
 
-### Spreading the Word
-Acknowledging and or citing the plugin is as important as direct contributions.
+To select another installation:
 
-[Project Changelog](CHANGELOG.md)
+```sh
+python3 tools/build-offline.py --ide /path/to/PhpStorm --test --psi-test
+python3 tools/verify-offline.py --ide /path/to/PhpStorm
+```
+
+`PHPSTORM_HOME` can also select the SDK. If the bundled runtime lacks `javac`, use
+`--java-home /path/to/jdk-25` for the builder. The PSI runner uses `JAVA_HOME` or the
+IDE's bundled JDK. Requested tests must pass before the builder publishes its ZIP.
+SHA-256 and `build-info-<version>.json` are written beside the archive.
+
+## Gradle and CI
+
+The configured Gradle Wrapper is 9.1.0 and requires JDK 25:
+
+```sh
+./gradlew --no-daemon check verifyPlugin buildPlugin
+```
+
+With a local SDK, pass `-PlocalIdePath=/path/to/PhpStorm`. Gradle plugins, test
+frameworks and Plugin Verifier can still require downloads. GitHub Actions is
+configured to run this check/build path and store ZIP and verification reports.
+A prepared workflow is not evidence of a successful CI run.
+
+## Verification and known limits
+
+The recorded local RC passed **148 pure-logic checks**, **52 real PHP PSI checks**
+and static JVM reference checks for **182 plugin classes** against **1272 SDK jars**.
+The [dated artifact report](docs/verification/1.1.0-rc.1.md) records the exact ZIP and hash.
+
+- PHP PSI tests use the real PhpStorm parser and reference manipulator with a supplied
+  class table. They do not run the full PHP index, completion UI or complete IDE
+  Find Usages/Rename workflow.
+- `verify-offline.py` checks JVM classes/members and plugin descriptors. It does not
+  replace JetBrains Plugin Verifier or runtime testing in an activated IDE profile.
+- Gradle/Docker execution, Plugin Verifier and full IDE integration are not yet verified.
+- Arbitrary custom Query scopes, ambiguous assignments and dynamic factories may not resolve.
+- GridView model inference from `dataProvider`, expanded controller-to-view type flow,
+  config merging/DI and configurable i18n sources remain planned work.
+
+The plugin analyzes PHP statically. Migration actions are explicit user actions
+that execute the configured Yii command.
+
+## Development
+
+[Contributing](CONTRIBUTING.md) · [Agent instructions](AGENTS.md) ·
+[Project memory](docs/PROJECT_MEMORY.md) · [Roadmap](DEVELOPMENT_PLAN.md) ·
+[Changelog](CHANGELOG.md)
+
+Bug reports should contain the IDE build, plugin/Yii/PHP versions and a minimal
+reproducible example. The repository includes issue and pull request templates.
+
+## Credits and license
+
+Maintained by [byscrimm](https://github.com/byscrimm), with AI-assisted development.
+Thanks to [Vxdy and contributors](https://github.com/vxdy/Yii2-Support-Extended) and
+[Vladislav Nikishin / NVlad and contributors](https://github.com/nvlad/yii2support)
+for the work this fork builds upon.
+
+The original BSD license and copyright notices are preserved in [LICENSE.md](LICENSE.md).
+Earlier release history is preserved in [the upstream changelog](docs/UPSTREAM_CHANGELOG.md).
+This is a community fork, not an official Yii or JetBrains product.

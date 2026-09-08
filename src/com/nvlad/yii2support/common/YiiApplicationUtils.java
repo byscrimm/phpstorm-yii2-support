@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public class YiiApplicationUtils {
-    private static Map<Project, VirtualFile> yiiRootPaths = new HashMap<>();
+
 
     @Nullable
     public static String getYiiRootPath(Project project) {
@@ -32,7 +32,7 @@ public class YiiApplicationUtils {
     }
 
     public static void resetYiiRootPath(Project project) {
-        yiiRootPaths.remove(project);
+        // Paths are resolved from the current settings.
     }
 
     @NotNull
@@ -111,16 +111,13 @@ public class YiiApplicationUtils {
 
     @Nullable
     public static VirtualFile getYiiRootVirtualFile(Project project, String path) {
-        if (yiiRootPaths.containsKey(project)) {
-            return yiiRootPaths.get(project);
-        }
 
         VirtualFile yiiRootPath;
         if (path == null) {
             yiiRootPath = project.getBaseDir();
         } else {
             LocalFileSystem fileSystem = LocalFileSystem.getInstance();
-            yiiRootPath = fileSystem.refreshAndFindFileByPath(path);
+            yiiRootPath = fileSystem.findFileByPath(path);
             if (yiiRootPath == null) {
                 yiiRootPath = project.getBaseDir();
                 path = path.replace('\\', '/');
@@ -134,6 +131,7 @@ public class YiiApplicationUtils {
 
                 List<String> pathEntries = StringUtil.split(path, "/");
                 for (String pathEntry : pathEntries) {
+                    if (yiiRootPath == null) break;
                     yiiRootPath = yiiRootPath.findChild(pathEntry);
                     if (yiiRootPath == null) {
                         break;
@@ -142,7 +140,7 @@ public class YiiApplicationUtils {
             }
         }
 
-        yiiRootPaths.put(project, yiiRootPath);
+
 
         return yiiRootPath;
     }

@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 public class MethodUtils {
     @Nullable
     public static PsiElement getParameter(MethodReference methodRef, int index) {
-        if (methodRef.getParameters().length >= index) {
+        if (index >= 0 && methodRef.getParameters().length > index) {
             return methodRef.getParameters()[index];
         }
         return null;
@@ -38,7 +38,7 @@ public class MethodUtils {
         int limit = 10;
         PsiElement prevElement = element;
         PsiElement currElement = element.getParent();
-        while (limit > 0) {
+        while (limit > 0 && currElement != null) {
             if (currElement instanceof ParameterList)
                 return prevElement;
             else {

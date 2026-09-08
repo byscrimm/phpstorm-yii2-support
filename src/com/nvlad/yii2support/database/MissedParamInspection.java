@@ -26,8 +26,8 @@ public class MissedParamInspection extends PhpInspection {
             public void visitPhpMethodReference(MethodReference reference) {
                 if (reference != null && reference.getParameters().length > 0) {
 
-                    Method method = (Method) reference.resolve();
-                    if (method == null)
+                    Method method = reference.resolve() instanceof Method resolved ? resolved : null;
+                    if (method == null || method.getContainingClass() == null || !method.getContainingClass().getFQN().startsWith("\\yii\\db\\"))
                         return;
                     int paramParameterIndex = ClassUtils.getParamIndex(method, "params");
                     int conditionParameterIndex = ClassUtils.getParamIndex(method, new String[]{ "condition", "expression", "sql"});
@@ -37,6 +37,7 @@ public class MissedParamInspection extends PhpInspection {
 
                         PsiElement element = reference.getParameters()[conditionParameterIndex];
 
+                        if (!(element instanceof StringLiteralExpression)) return;
                         String condition = ClassUtils.getStringByElement(element);
                         String[] conditionParams = DatabaseUtils.extractParamsFromCondition(condition);
                         String[] conditionParamsWithoutColon = DatabaseUtils.extractParamsFromCondition(condition, false);
@@ -48,10 +49,12 @@ public class MissedParamInspection extends PhpInspection {
                                     ArrayCreationExpression array = (ArrayCreationExpression) paramParam;
                                     ArrayList<String> paramString = new ArrayList<>();
                                     for (ArrayHashElement elem : array.getHashElements()) {
+                                        if (!(elem.getKey() instanceof StringLiteralExpression)) return;
                                         if (elem.getKey() != null && elem.getKey().getText() != null)
                                             paramString.add(ClassUtils.removeQuotes(elem.getKey().getText()).trim());
                                     }
-                                    if (!Arrays.equals(paramString.toArray(), conditionParams) && !Arrays.equals(paramString.toArray(), conditionParamsWithoutColon)) {
+                                    if (!paramString.stream().map(com.nvlad.yii2support.common.SqlParameters::normalize).collect(java.util.stream.Collectors.toSet())
+                                            .equals(new java.util.HashSet<>(Arrays.asList(conditionParamsWithoutColon)))) {
                                         MissedParamQuickFix qFix = new MissedParamQuickFix(reference);
                                         problemsHolder.registerProblem(reference.getParameters()[paramParameterIndex], "Condition parameters do not conform to the condition", qFix);
                                     }
@@ -68,45 +71,7 @@ public class MissedParamInspection extends PhpInspection {
                 }
                 super.visitPhpMethodReference(reference);
             }
-/*
-            @Override
-            public void visitPhpArrayCreationExpression(ArrayCreationExpression expression) {
-                MethodReference methodRef = ClassUtils.getMethodRef(expression, 10);
-                if (methodRef != null) {
-                    Method method = (Method) methodRef.resolve();
-                    if (method == null)
-                        return;
-                    int paramPosition = ClassUtils.indexForElementInParameterList(expression);
-                    if (paramPosition > 0 && method.getParameters().length > paramPosition) {
-                        if (method.getParameters()[paramPosition].getName().equals("params") &&
-                                (method.getParameters()[paramPosition - 1].getName().equals("condition") ||
-                                        method.getParameters()[paramPosition - 1].getName().equals("expression"))) {
-                            PsiElement element = methodRef.getParameters()[paramPosition - 1];
-                            if (element instanceof StringLiteralExpression) {
-                                String condition = ((StringLiteralExpression) element).getContents();
-                                String[] conditionParams = DatabaseUtils.extractParamsFromCondition(condition);
-                                List<ArrayHashElement> hashElements = Lists.newArrayList(expression.getHashElements());
-                                String[] params = new String[hashElements.size()];
-                                for (int i = 0; i < hashElements.size(); i++) {
-                                    PsiElement key = hashElements.get(i).getKey();
-                                    if (key != null)
-                                        params[i] = ClassUtils.removeQuotes(key.getText());
-                                }
 
-                                if (!Arrays.equals(conditionParams, params)) {
-                                    MissedParamQuickFix qFix = new MissedParamQuickFix(methodRef);
-                                    String problemDesc = "Parameters do not correspond to the condition";
-                                    if (params.length == 1)
-                                        problemDesc = "Parameter does not correspond to the condition";
-                                    problemsHolder.registerProblem(expression, problemDesc, qFix);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                super.visitPhpArrayCreationExpression(expression);
-            } */
         };
 
     }

@@ -5,3 +5,15 @@ yii2support.zip
 /build
 /.gradle/
 /bin/*
+/.gradle-home/
+/build-cache/
+__pycache__/
+*.pyc
+.DS_Store
+/.serena/
+/.codex/
+/.claude/
+/.env
+/.env.*
+!/.env.example
+*.local.properties

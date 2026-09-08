@@ -180,7 +180,7 @@ abstract class MigrateBaseAction extends AnActionButton {
             return path;
         }
 
-        if (path.charAt(1) == ':') {
+        if (path.length() > 1 && path.charAt(1) == ':') {
             return path;
         }
 

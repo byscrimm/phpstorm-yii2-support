@@ -1,0 +1,12 @@
+.git
+.idea
+.gradle
+.gradle-home
+build
+build-cache
+out
+bin
+*.log
+.env*
+.sentryclirc
+.DS_Store

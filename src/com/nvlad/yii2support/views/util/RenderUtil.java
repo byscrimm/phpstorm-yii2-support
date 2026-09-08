@@ -20,7 +20,7 @@ public class RenderUtil {
             return result;
         }
 
-        if (parameterList.getParameters().length == 1) {
+        if (parameterList.getParameters().length < 2) {
             return result;
         }
 

@@ -15,6 +15,8 @@ public class ObjectFactoryReferenceProvider extends com.intellij.psi.PsiReferenc
     @NotNull
     @Override
     public ObjectFactoryReference[] getReferencesByElement(@NotNull PsiElement psiElement, @NotNull ProcessingContext processingContext) {
+        if (!(psiElement instanceof com.jetbrains.php.lang.psi.elements.StringLiteralExpression)
+                || com.nvlad.yii2support.common.PhpArrays.keyEntry(psiElement) == null) return new ObjectFactoryReference[0];
         List<ObjectFactoryReference> references = new ArrayList<>();
 
         ObjectFactoryReference reference = new ObjectFactoryReference(psiElement);

@@ -107,9 +107,8 @@ public class ClassUtils {
                 }
             }
 
-            if (phpPsiElement != null && phpPsiElement.getParent() instanceof PhpPsiElement) {
-                phpPsiElement = (PhpPsiElement) phpPsiElement.getParent();
-            }
+            phpPsiElement = phpPsiElement.getParent() instanceof PhpPsiElement
+                    ? (PhpPsiElement) phpPsiElement.getParent() : null;
         }
 
         return null;
@@ -174,7 +173,7 @@ public class ClassUtils {
         if (recursionLimit < 1)
             return false;
 
-        return isClassInheritsOrEqual(classObject.getSuperClass(), superClass, recursionLimit--);
+        return isClassInheritsOrEqual(classObject.getSuperClass(), superClass, recursionLimit - 1);
     }
 
     public static boolean isClassInherit(PhpClass classObject, String parentClassName, PhpIndex index) {
@@ -193,7 +192,7 @@ public class ClassUtils {
             return true;
         }
 
-        return isClassInherit(classObject.getSuperClass(), superClass);
+        return isClassInheritsOrEqual(classObject.getSuperClass(), superClass, 100);
     }
 
     public static String getAsPropertyName(Method method) {
@@ -254,8 +253,10 @@ public class ClassUtils {
 
     @NotNull
     public static String getStringByElement(PsiElement element) {
-        if (element instanceof StringLiteralExpression || element instanceof ConcatenationExpression) {
-            return element.getText();
+        if (element instanceof StringLiteralExpression) return ((StringLiteralExpression) element).getContents();
+        if (element instanceof ConcatenationExpression) {
+            ConcatenationExpression concat = (ConcatenationExpression) element;
+            return getStringByElement(concat.getLeftOperand()) + getStringByElement(concat.getRightOperand());
         }
 
         return "";
@@ -267,7 +268,7 @@ public class ClassUtils {
     }
 
     public static boolean isFieldExists(PhpClass phpClass, String fieldName, boolean excludePhpDoc) {
-        if (phpClass == null || fieldName == null)
+        if (phpClass == null || fieldName == null || fieldName.isEmpty())
             return false;
         fieldName = ClassUtils.removeQuotes(fieldName);
 
@@ -294,7 +295,7 @@ public class ClassUtils {
 
     @Nullable
     public static PhpClassMember findWritableField(PhpClass phpClass, String fieldName) {
-        if (phpClass == null || fieldName == null) {
+        if (phpClass == null || fieldName == null || fieldName.isEmpty()) {
             return null;
         }
 

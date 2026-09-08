@@ -46,6 +46,7 @@ public class WidgetConfigCompletionProvider extends CompletionProvider<Completio
                 for(PsiElement child : top.getChildren()){
                     if(child instanceof ParameterList){
                         PsiElement[] params = ((ParameterList) child).getParameters();
+                        if (params.length == 0) continue;
                         for(PsiElement conf : params[0].getChildren()){
                             String key = getHashKeyContents(conf);
                             // 'model' key for DetailView widget and 'filterModel' for GridView
@@ -87,7 +88,7 @@ public class WidgetConfigCompletionProvider extends CompletionProvider<Completio
             String key = getHashKeyContents(element.getParent().getParent());
             if(key != null) {
                 if (key.equals("format")) {
-                    doFormatterCompletion(completionResultSet, project, phpIndex);
+                    doFormatterCompletion(completionResultSet, project, phpIndex, completionParameters.getPosition());
                     return;
                 }else if (!key.equals("attribute")){
                     return;
@@ -101,7 +102,7 @@ public class WidgetConfigCompletionProvider extends CompletionProvider<Completio
                     completionResultSet = completionResultSet.withPrefixMatcher(
                             attributeString.substring(attributeString.indexOf(':')+1)
                                 .replace("IntellijIdeaRulezzz ",""));
-                    doFormatterCompletion(completionResultSet, project, phpIndex);
+                    doFormatterCompletion(completionResultSet, project, phpIndex, completionParameters.getPosition());
                     return;
                 }else if(elCount > 2){
                     return;
@@ -117,12 +118,12 @@ public class WidgetConfigCompletionProvider extends CompletionProvider<Completio
         }
     }
 
-    private void doFormatterCompletion(@NotNull CompletionResultSet completionResultSet, Project project, PhpIndex phpIndex){
+    private void doFormatterCompletion(@NotNull CompletionResultSet completionResultSet, Project project, PhpIndex phpIndex, PsiElement origin){
         final GlobalSearchScope scope = GlobalSearchScope.projectScope(project);
 
         PhpClass completionClass = null;
-        for (String className : FileBasedIndex.getInstance().getValues(ComponentsIndex.identity, "formatter", scope)) {
-            completionClass = PhpIndex.getInstance(project).getAnyByFQN(className).iterator().next();
+        for (String className : com.nvlad.yii2support.configurations.ComponentResolver.classes(origin, "formatter")) {
+            completionClass = ClassUtils.getClass(phpIndex, className);
         }
         if(completionClass == null) {
             completionClass = ClassUtils.getClass(phpIndex, "yii\\i18n\\Formatter");

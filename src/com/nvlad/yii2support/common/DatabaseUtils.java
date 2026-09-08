@@ -56,6 +56,8 @@ public class DatabaseUtils {
         String prefixedTable = AddTablePrefix(table, true, project);
 
         for (DbDataSource source : dataSources) {
+            String selected = Yii2SupportSettings.getInstance(project).dataSourceId;
+            if (!selected.isEmpty() && !selected.equals(source.getUniqueId())) continue;
             for (Object item : source.getModel().traverser().filter(DasTable.class)) {
                 if (item instanceof DasTable && (((DasTable) item).getName().equals(prefixedTable) || ((DasTable) item).getName().equals(table))) {
                     TableInfo tableInfo = new TableInfo((DasTable) item);
@@ -78,6 +80,8 @@ public class DatabaseUtils {
 
         ArrayList<LookupElementBuilder> list = new ArrayList<>();
         for (DbDataSource source : dataSources) {
+            String selected = Yii2SupportSettings.getInstance(project).dataSourceId;
+            if (!selected.isEmpty() && !selected.equals(source.getUniqueId())) continue;
             JBIterable<DasTable> filtered = source.getModel().traverser().filter(DasTable.class);
              for (Object item : filtered) {
                 if (item instanceof DasTable) {
@@ -107,17 +111,7 @@ public class DatabaseUtils {
     }
 
     public static String[] extractParamsFromCondition(String condition, boolean includeColon) {
-        LinkedHashSet<String> matches = new LinkedHashSet<>();
-        String pattern = "(?<![:\\[])(:[^\\W\\d]\\w+)";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(condition);
-        while (m.find()) {
-            String param = m.group(1);
-            if (! includeColon)
-                param = param.replace(":", "");
-            matches.add(param);
-        }
-        return matches.toArray(new String[0]);
+        return SqlParameters.names(condition).stream().map(name -> includeColon ? ":" + name : name).toArray(String[]::new);
     }
 
     public static String RemoveTablePrefix(String table, Project project) {
@@ -136,7 +130,7 @@ public class DatabaseUtils {
             return clearTablePrefixTags(table);
         }
         String prefix = Yii2SupportSettings.getInstance(project).tablePrefix;
-        return matcher.group(2).replace("%", prefix);
+        return matcher.group(2) != null ? matcher.group(2).replace("%", prefix) : matcher.group(3);
     }
 
     @NotNull
@@ -285,6 +279,8 @@ public class DatabaseUtils {
         table = ClassUtils.removeQuotes(table);
 
         for (DbDataSource source : dataSources) {
+            String selected = Yii2SupportSettings.getInstance(project).dataSourceId;
+            if (!selected.isEmpty() && !selected.equals(source.getUniqueId())) continue;
             for (Object item : source.getModel().traverser().filter(DasTable.class)) {
                 if (item instanceof DasTable && ((DasTable) item).getName().equals(table)) {
                    return true;
@@ -305,6 +301,8 @@ public class DatabaseUtils {
             return list;
         table = ClassUtils.removeQuotes(prefixedTable);
         for (DbDataSource source : dataSources) {
+            String selected = Yii2SupportSettings.getInstance(project).dataSourceId;
+            if (!selected.isEmpty() && !selected.equals(source.getUniqueId())) continue;
             for (Object item : source.getModel().traverser().filter(DasTable.class)) {
 
                 if (item instanceof DasTable && ((DasTable) item).getName().equals(prefixedTable)) {
@@ -352,6 +350,8 @@ public class DatabaseUtils {
             return result;
         String preferredDataSourceId = Yii2SupportSettings.getInstance(project).dataSourceId;
         for (DbDataSource source : dataSources) {
+            String selected = Yii2SupportSettings.getInstance(project).dataSourceId;
+            if (!selected.isEmpty() && !selected.equals(source.getUniqueId())) continue;
             if(!preferredDataSourceId.isEmpty() && !preferredDataSourceId.equals(source.getUniqueId())){
                 continue;
             }

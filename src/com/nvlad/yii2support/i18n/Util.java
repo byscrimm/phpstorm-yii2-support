@@ -17,44 +17,37 @@ import java.util.Collections;
 class Util {
     @NotNull
     static PsiElement[] getCategories(PhpPsiElement element) {
-        ArrayList<PsiElement> categories = new ArrayList<>();
-
-        PsiDirectory directory = getDirectory(element);
-        if (directory != null) {
-            Collections.addAll(categories, directory.getFiles());
+        java.util.Map<String,PsiElement> categories = new java.util.TreeMap<>();
+        for (PsiDirectory directory : getDirectories(element)) {
+            for (PsiFile file : directory.getFiles()) if (file.getName().endsWith(".php")) categories.putIfAbsent(file.getName(), file);
         }
-
-        return categories.toArray(new PsiElement[0]);
+        return categories.values().toArray(new PsiElement[0]);
     }
 
     @NotNull
     static ArrayHashElement[] getMessages(PhpPsiElement element, String category) {
-        ArrayList<ArrayHashElement> messages = new ArrayList<>();
-
-        PsiDirectory directory = getDirectory(element);
-        if (directory != null) {
-            PsiFile file = directory.findFile(category.concat(".php"));
-            if (file != null) {
-                messages.addAll(loadMessagesFromFile(file));
+        java.util.Map<String,ArrayHashElement> messages = new java.util.LinkedHashMap<>();
+        for (PsiDirectory directory : getDirectories(element)) {
+            PsiFile file = directory.findFile(category + ".php");
+            if (file != null) for (ArrayHashElement message : loadMessagesFromFile(file)) {
+                String key = com.nvlad.yii2support.common.PhpArrays.string(message.getKey());
+                if (key != null) messages.putIfAbsent(key, message);
             }
         }
-
-        return messages.toArray(new ArrayHashElement[0]);
+        return messages.values().toArray(new ArrayHashElement[0]);
     }
-//
-//    public String[] getMessagePointers(String category, String message) {
-//        return new String[0];
-//    }
 
     @NotNull
-    static String PhpExpressionValue(PhpExpression expression) {
+    static String PhpExpressionValue(PhpExpression expression) { return expressionValue(expression, 0); }
+    private static String expressionValue(PhpExpression expression, int depth) {
+        if (expression == null || depth > 32) return "";
         if (expression instanceof StringLiteralExpression) {
             return ((StringLiteralExpression) expression).getContents();
         }
         if (expression instanceof ConstantReference) {
             Constant constant = (Constant) ((ConstantReference) expression).resolve();
             if (constant != null) {
-                return PhpExpressionValue((PhpExpression) constant.getValue());
+                return expressionValue((PhpExpression) constant.getValue(), depth + 1);
             }
         }
         if (expression instanceof ClassConstantReference) {
@@ -64,7 +57,7 @@ class Util {
                 if (phpClass != null) {
                     Field field = phpClass.findFieldByName(expression.getName(), true);
                     if (field != null) {
-                        return PhpExpressionValue((PhpExpression) field.getDefaultValue());
+                        return expressionValue((PhpExpression) field.getDefaultValue(), depth + 1);
                     }
                 }
             }
@@ -74,12 +67,12 @@ class Util {
 
             if (variable != null && variable.getContext() instanceof AssignmentExpression) {
                 AssignmentExpression assignmentExpression = (AssignmentExpression) variable.getContext();
-                return PhpExpressionValue((PhpExpression) assignmentExpression.getValue());
+                return expressionValue((PhpExpression) assignmentExpression.getValue(), depth + 1);
             }
         }
         if (expression instanceof ConcatenationExpression) {
             ConcatenationExpression concatenation = (ConcatenationExpression) expression;
-            return PhpExpressionValue((PhpExpression) concatenation.getLeftOperand()) + PhpExpressionValue((PhpExpression) concatenation.getRightOperand());
+            return expressionValue((PhpExpression) concatenation.getLeftOperand(), depth + 1) + expressionValue((PhpExpression) concatenation.getRightOperand(), depth + 1);
         }
         String expressionType = expression.getType().toString();
         if (expressionType.equals("int") || expressionType.equals("float")) {
@@ -89,58 +82,32 @@ class Util {
         return "";
     }
 
-    @Nullable
-    private static PsiDirectory getDirectory(PsiElement element) {
-        PsiFile file = element.getContainingFile().getOriginalFile();
-        String filename = file.getName();
-        PsiDirectory directory = file.getParent();
-
-        filename = filename.substring(0, filename.lastIndexOf("."));
-
-        if (directory != null) {
-            if (filename.endsWith("Controller")) {
-                directory = directory.getParentDirectory();
-            } else {
-                PsiDirectory messageParent = directory.findSubdirectory("messages");
-                while (messageParent == null) {
-                    directory = directory.getParentDirectory();
-                    if (directory == null) {
-                        break;
-                    }
-                    messageParent = directory.findSubdirectory("messages");
-                }
+    private static java.util.List<PsiDirectory> getDirectories(PsiElement element) {
+        java.util.List<PsiDirectory> result = new java.util.ArrayList<>();
+        PsiFile file = element.getContainingFile();
+        if (file == null) return result;
+        String language = null;
+        MethodReference call = com.intellij.psi.util.PsiTreeUtil.getParentOfType(element, MethodReference.class);
+        if (call != null && call.getParameters().length > 3)
+            language = com.nvlad.yii2support.common.PhpArrays.string(call.getParameters()[3]);
+        PsiDirectory parent = file.getOriginalFile().getParent();
+        while (parent != null) {
+            PsiDirectory messages = parent.findSubdirectory("messages");
+            if (messages != null) {
+                if (language != null && messages.findSubdirectory(language) != null) result.add(messages.findSubdirectory(language));
+                java.util.List<PsiDirectory> locales = new java.util.ArrayList<>(java.util.Arrays.asList(messages.getSubdirectories()));
+                locales.sort(java.util.Comparator.comparing(PsiDirectory::getName));
+                for (PsiDirectory locale : locales) if (!result.contains(locale)) result.add(locale);
             }
+            if (parent.getVirtualFile().getPath().equals(element.getProject().getBasePath())) break;
+            parent = parent.getParentDirectory();
         }
-        if (directory != null) {
-            directory = directory.findSubdirectory("messages");
-            if (directory != null && directory.getSubdirectories().length > 0) {
-                directory = directory.getSubdirectories()[0];
-                return directory;
-            }
-        }
-
-        return null;
+        return result;
     }
-
     private static Collection<ArrayHashElement> loadMessagesFromFile(PsiFile file) {
-        ArrayList<ArrayHashElement> result = new ArrayList<>();
-
-        GroupStatement groupStatement = (GroupStatement) file.getFirstChild();
-        for (PsiElement element : groupStatement.getChildren()) {
-            if (element instanceof PhpReturn) {
-                if (((PhpReturn) element).getFirstPsiChild() instanceof ArrayCreationExpression) {
-                    ArrayCreationExpression array = (ArrayCreationExpression) ((PhpReturn) element).getFirstPsiChild();
-                    if (array != null) {
-                        for (ArrayHashElement hashElement : array.getHashElements()) {
-                            result.add(hashElement);
-                        }
-                    }
-                }
-
-                break;
-            }
-        }
-
+        ArrayCreationExpression array = com.nvlad.yii2support.common.PhpArrays.returnedArray(file);
+        java.util.List<ArrayHashElement> result = new java.util.ArrayList<>();
+        if (array != null) array.getHashElements().forEach(result::add);
         return result;
     }
 }

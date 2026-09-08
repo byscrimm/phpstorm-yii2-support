@@ -72,7 +72,7 @@ public class PsiUtil {
     @Nullable
     public static PsiElement getSuperParent(PsiElement element, Class clazz, int maxDepth) {
         PsiElement parent = element.getParent();
-        while (maxDepth > 0) {
+        while (maxDepth > 0 && parent != null) {
             if (clazz.isInstance(parent)) {
                 return parent;
             } else {
@@ -96,7 +96,7 @@ public class PsiUtil {
     public static ArrayCreationExpression getArrayCreation(PsiElement element) {
         int limit = 10;
         PsiElement curElement = element;
-        while (limit > 0) {
+        while (limit > 0 && curElement != null) {
             if (curElement instanceof ArrayCreationExpression) {
                 return (ArrayCreationExpression) curElement;
             } else {
@@ -110,7 +110,7 @@ public class PsiUtil {
     public static ArrayCreationExpression getArrayCreationChild(PsiElement element) {
         int limit = 10;
         PsiElement curElement = element;
-        while (limit > 0) {
+        while (limit > 0 && curElement != null) {
             if(curElement instanceof GroupStatement || curElement instanceof PhpReturn){
                 curElement = curElement.getFirstChild();
             }else if (curElement instanceof ArrayCreationExpression) {

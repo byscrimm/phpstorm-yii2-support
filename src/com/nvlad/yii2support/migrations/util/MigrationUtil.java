@@ -35,7 +35,7 @@ public class MigrationUtil {
     public static List<String> migrationNamespaces(List<Migration> migrations) {
         List<String> namespaces = new LinkedList<>();
         for (Migration migration : migrations) {
-            if (migration.namespace.equals("\\") && !namespaces.contains(migration.namespace)) {
+            if (!migration.namespace.equals("\\") && !namespaces.contains(migration.namespace)) {
                 namespaces.add(migration.namespace);
             }
         }

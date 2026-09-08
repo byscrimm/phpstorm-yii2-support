@@ -18,27 +18,21 @@ import com.nvlad.yii2support.utils.Yii2SupportSettings;
 import java.util.*;
 
 public class MigrationService {
-    private static final Map<Project, MigrationService> migrationManagerMap = new HashMap<>();
-
     public static MigrationService getInstance(Project project) {
-        if (!migrationManagerMap.containsKey(project)) {
-            migrationManagerMap.put(project, new MigrationService(project));
-        }
-
-        return migrationManagerMap.get(project);
+        return project.getService(MigrationService.class);
     }
 
     private final Project myProject;
     private final PhpIndex myPhpIndex;
     private final int baseUrlLength;
     private Map<MigrateCommand, Collection<Migration>> myMigrationMap;
-    private List<Migration> myMigrations;
+    private List<Migration> myMigrations = List.of();
     private Set<MigrationServiceListener> listeners;
 
-    private MigrationService(Project project) {
+    public MigrationService(Project project) {
         myProject = project;
         myPhpIndex = PhpIndex.getInstance(project);
-        listeners = new HashSet<>();
+        listeners = new java.util.concurrent.CopyOnWriteArraySet<>();
 
         String projectRootUrl = YiiApplicationUtils.getYiiRootUrl(project);
         baseUrlLength = projectRootUrl != null ? projectRootUrl.length() : 0;
@@ -54,7 +48,8 @@ public class MigrationService {
         return myMigrationMap;
     }
 
-    public void sync() {
+    public synchronized void sync() {
+        if (myProject.isDisposed()) return;
         ApplicationManager.getApplication().runReadAction(this::_sync);
     }
 
@@ -82,11 +77,12 @@ public class MigrationService {
             }
 
             VirtualFile virtualFile = FileUtil.getVirtualFile(migrationClass.getContainingFile());
-            if (virtualFile.getUrl().length() < baseUrlLength) {
+            String rootUrl = YiiApplicationUtils.getYiiRootUrl(myProject);
+            if (virtualFile == null || rootUrl == null || !virtualFile.getUrl().startsWith(rootUrl + "/")) {
                 continue;
             }
 
-            String path = virtualFile.getUrl().substring(baseUrlLength + 1);
+            String path = virtualFile.getUrl().substring(rootUrl.length() + 1);
             int pathLength = path.length();
             path = path.substring(0, pathLength - virtualFile.getName().length() - 1);
             Migration migration = getMigrationForClass(migrationClass, path);

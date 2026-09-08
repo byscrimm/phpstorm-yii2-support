@@ -29,56 +29,20 @@ public class ComponentsIndex extends FileBasedIndexExtension<String, String> {
             final HashMap<String, String> result = new HashMap<>();
 
             PsiFile psiFile = file.getPsiFile();
-            if(psiFile instanceof PhpFile){
-                PsiElement openTag = psiFile.getFirstChild();
-                for(PsiElement child : openTag.getChildren()){
-                    if(child instanceof PhpReturn){
-                        ArrayCreationExpression arrayExpression = getArrayCreationChild(child);
-                        if(arrayExpression != null) {
-                            for (ArrayHashElement arrayHashElement : arrayExpression.getHashElements()) {
-                                if(arrayHashElement.getKey() == null || arrayHashElement.getValue() == null){
-                                    continue;
-                                }
-
-                                if(((StringLiteralExpression) arrayHashElement.getKey()).getContents().equals("components")){
-                                    for (PsiElement component : arrayHashElement.getValue().getChildren()) {
-                                        if(!(component instanceof ArrayHashElement)) {
-                                            continue;
-                                        }
-                                        StringLiteralExpression keyExpr = (StringLiteralExpression)((ArrayHashElement) component).getKey();
-                                        PhpPsiElement confArray = ((ArrayHashElement) component).getValue();
-                                        if(keyExpr == null || !(confArray instanceof ArrayCreationExpression)){
-                                            continue;
-                                        }
-
-                                        String componentName = keyExpr.getContents();
-                                        for(PsiElement conf : confArray.getChildren()){
-                                            if(!(conf instanceof ArrayHashElement)) {
-                                                continue;
-                                            }
-
-                                            StringLiteralExpression prop = (StringLiteralExpression)((ArrayHashElement) conf).getKey();
-                                            if(prop == null){
-                                                continue;
-                                            }
-                                            if(prop.getContents().equals("class")){
-                                                PhpPsiElement classValue = ((ArrayHashElement) conf).getValue();
-                                                String classFqn;
-                                                if(classValue instanceof ClassConstantReference && ((ClassConstantReference) classValue).getClassReference() != null){
-                                                    classFqn = ((ClassConstantReference) classValue).getClassReference().getType().toString();
-                                                }else if(classValue instanceof StringLiteralExpression){
-                                                    classFqn = ((StringLiteralExpression) classValue).getContents();
-                                                }else{
-                                                    continue;
-                                                }
-                                                result.put(componentName, classFqn);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+            for (ArrayHashElement hash : com.intellij.psi.util.PsiTreeUtil.findChildrenOfType(psiFile, ArrayHashElement.class)) {
+                if (!"components".equals(com.nvlad.yii2support.common.PhpArrays.string(hash.getKey()))
+                        || !(hash.getValue() instanceof ArrayCreationExpression components)) continue;
+                for (ArrayHashElement component : components.getHashElements()) {
+                    String name = com.nvlad.yii2support.common.PhpArrays.string(component.getKey());
+                    if (name == null) continue;
+                    String className = com.nvlad.yii2support.common.PhpArrays.className(component.getValue());
+                    if (className == null && component.getValue() instanceof Function factory) {
+                        for (PhpReturn ret : com.intellij.psi.util.PsiTreeUtil.findChildrenOfType(factory, PhpReturn.class)) {
+                            className = com.nvlad.yii2support.common.PhpArrays.className(ret.getFirstPsiChild());
+                            if (className != null) break;
                         }
                     }
+                    if (className != null && !className.isBlank()) result.put(name, className);
                 }
             }
             return result;
@@ -97,7 +61,7 @@ public class ComponentsIndex extends FileBasedIndexExtension<String, String> {
 
     @Override
     public int getVersion() {
-        return 6;
+        return 7;
     }
 
     @Override

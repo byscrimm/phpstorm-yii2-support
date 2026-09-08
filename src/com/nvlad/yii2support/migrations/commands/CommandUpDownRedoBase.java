@@ -24,7 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 abstract class CommandUpDownRedoBase extends CommandBase {
-    private static final Pattern migratePattern = Pattern.compile("\\*\\*\\* (applying|applied|reverting|reverted|failed to apply|failed to revert) ([\\w\\\\-]*?\\\\)?([mM]\\d{6}_?\\d{6}\\D.+?)\\s+(\\(time: ([\\d.]+)s\\))?");
+
 
     final String myPath;
     final List<Migration> myMigrations;
@@ -41,15 +41,14 @@ abstract class CommandUpDownRedoBase extends CommandBase {
 
     @Override
     void processOutput(String text) {
-        Matcher matcher = migratePattern.matcher(text);
-
-        if (matcher.find()) {
-            Migration migration = findMigration("\\" + StringUtil.defaultIfEmpty(matcher.group(2), ""), matcher.group(3));
+        MigrationOutput.Event event = MigrationOutput.parse(text);
+        if (event != null) {
+            Migration migration = findMigration(event.namespace(), event.name());
             if (migration == null) {
                 return;
             }
 
-            switch (matcher.group(1)) {
+            switch (event.status()) {
                 case "applying":
                     migration.status = MigrationStatus.Progress;
                     migration.applyAt = null;
@@ -59,7 +58,7 @@ abstract class CommandUpDownRedoBase extends CommandBase {
                     break;
                 case "applied":
                     migration.status = MigrationStatus.Success;
-                    migration.upDuration = Duration.parse("PT" + matcher.group(5) + "S");
+                    migration.upDuration = event.duration();
                     break;
                 case "failed to apply":
                     migration.status = MigrationStatus.ApplyError;
@@ -74,7 +73,7 @@ abstract class CommandUpDownRedoBase extends CommandBase {
                     break;
                 case "reverted":
                     migration.status = MigrationStatus.NotApply;
-                    migration.downDuration = Duration.parse("PT" + matcher.group(5) + "S");
+                    migration.downDuration = event.duration();
                     break;
                 case "failed to revert":
                     migration.status = MigrationStatus.RollbackError;
@@ -139,7 +138,7 @@ abstract class CommandUpDownRedoBase extends CommandBase {
         if (myMigrations.size() > 0) {
             for (Migration migration : myMigrations) {
                 if (isInvalidMigrationStatus(migration, action)) {
-                    if (direction.equals("reverting")) {
+                    if ("reverting".equals(direction)) {
                         migration.status = MigrationStatus.RollbackError;
                     } else {
                         migration.status = MigrationStatus.ApplyError;
@@ -163,12 +162,16 @@ abstract class CommandUpDownRedoBase extends CommandBase {
     }
 
     private void syncDataSources() {
+        if (myProject.isDisposed()) return;
+        String selected = com.nvlad.yii2support.utils.Yii2SupportSettings.getInstance(myProject).dataSourceId;
         DbPsiFacade facade = DbPsiFacade.getInstance(myProject);
         for (DbDataSource dataSource : facade.getDataSources()) {
+            if (!selected.isEmpty() && !selected.equals(dataSource.getUniqueId())) continue;
             if (dataSource.getDelegate() instanceof LocalDataSource) {
                 if (DbImplUtil.isConnected(dataSource)) {
                     LocalDataSource localDataSource = (LocalDataSource) dataSource.getDelegate();
-                    DataSourceUiUtil.performAutoSyncTask(myProject, localDataSource);
+                    com.intellij.database.util.DataSourceUtilKt.performAutoSyncTask(
+                            com.intellij.database.util.LoaderContext.selectGeneralTask(myProject, localDataSource), false);
                 }
             }
         }

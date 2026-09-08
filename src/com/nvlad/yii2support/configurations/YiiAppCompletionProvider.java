@@ -28,7 +28,7 @@ public class YiiAppCompletionProvider extends CompletionProvider<CompletionParam
             String field = PsiUtil.getYiiAppField((FieldReference) psiElement.getParent());
             if(field != null){
                 fileBasedIndex.processAllKeys(ComponentsIndex.identity, key -> {
-                    List<String> values = fileBasedIndex.getValues(ComponentsIndex.identity, key, scope);
+                    java.util.List<String> values = new java.util.ArrayList<>(ComponentResolver.classes(psiElement, key));
                     if(values.size() > 0){
                         LookupElementBuilder lookupElement = LookupElementBuilder.create(key)
                                 .withTypeText(values.get(0), true)

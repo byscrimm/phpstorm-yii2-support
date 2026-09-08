@@ -9,7 +9,7 @@ import com.nvlad.yii2support.migrations.entities.DefaultMigrateCommand;
 import com.nvlad.yii2support.migrations.entities.MigrateCommand;
 import com.nvlad.yii2support.migrations.entities.Migration;
 import com.nvlad.yii2support.migrations.services.MigrationService;
-import kotlin.reflect.jvm.internal.impl.utils.SmartList;
+import com.intellij.util.SmartList;
 
 import java.util.*;
 

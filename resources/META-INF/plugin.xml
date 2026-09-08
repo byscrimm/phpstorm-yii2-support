@@ -7,9 +7,11 @@
     </description>
 
     <change-notes><![CDATA[
-      <b>Fixes</b><br/>
-      - Fix Controller to View Jumping not working
-      <br/>
+      <b>1.1.0-rc.1</b><br/>
+      ActiveRecord relation completion and navigation, nested relation paths, JOIN aliases,
+      relation getter usage search, named arguments, and PHP PSI regression tests.<br/>
+      Fixes for array key references and the last asArray(false) call.<br/>
+      Targets PhpStorm 2026.2 (262.*). Release candidate; full IDE integration testing is pending.
     ]]></change-notes>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
@@ -34,7 +36,7 @@
     <extensions defaultExtensionNs="com.intellij">
 
         <projectService serviceImplementation="com.nvlad.yii2support.utils.Yii2SupportSettings"/>
-        <applicationService serviceImplementation="com.nvlad.yii2support.PluginGlobalSettings"/>
+        <projectService serviceImplementation="com.nvlad.yii2support.migrations.services.MigrationService"/>
 
         <projectConfigurable instance="com.nvlad.yii2support.ui.settings.SettingsForm"
                              displayName="Yii2 Support"
@@ -78,6 +80,8 @@
                              nonDefaultProject="true"/>
 
         <!-- Object Factory -->
+        <psi.referenceContributor language="PHP" implementation="com.nvlad.yii2support.objectfactory.ObjectFactoryReferenceContributor"/>
+        <psi.referenceContributor language="PHP" implementation="com.nvlad.yii2support.url.UrlReferenceContributor"/>
         <completion.contributor language="PHP"
                                 implementationClass="com.nvlad.yii2support.objectfactory.ObjectFactoryCompletionContributor"/>
         <localInspection language="PHP" shortName="MissedFieldInspection"
@@ -142,6 +146,11 @@
         <completion.contributor language="PHP"
                                 implementationClass="com.nvlad.yii2support.attributeLabels.AttributeLabelCompletionContributor"/>
 
+        <!-- ActiveRecord relations -->
+        <referencesSearch implementation="com.nvlad.yii2support.relations.RelationReferencesSearch"/>
+        <completion.contributor language="PHP" implementationClass="com.nvlad.yii2support.relations.RelationCompletionContributor"/>
+        <psi.referenceContributor language="PHP" implementation="com.nvlad.yii2support.relations.RelationReferenceContributor"/>
+
         <!-- Url -->
         <completion.contributor language="PHP"
                                 implementationClass="com.nvlad.yii2support.url.UrlCompletionContributor"/>
@@ -151,8 +160,6 @@
         <toolWindow id="Migrations" anchor="bottom"
                     factoryClass="com.nvlad.yii2support.migrations.ui.toolWindow.MigrationsToolWindowFactory"
                     icon="/icons/migration_tool_window.png"/>
-
-        <errorHandler implementation="com.nvlad.yii2support.errorreport.ErrorReportHandler"/>
     </extensions>
 
     <actions>
@@ -164,12 +171,6 @@
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="alt R"/>
         </action>
     </actions>
-
-    <application-components>
-        <component>
-            <implementation-class>com.nvlad.yii2support.PluginApplicationComponent</implementation-class>
-        </component>
-    </application-components>
 
     <!--
     <project-components>

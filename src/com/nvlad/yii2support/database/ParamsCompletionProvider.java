@@ -37,7 +37,7 @@ public class ParamsCompletionProvider extends CompletionProvider<CompletionParam
                     if (position.getParent().getParent().getParent() instanceof ArrayCreationExpression) {
                         ArrayCreationExpression array = (ArrayCreationExpression) position.getParent().getParent().getParent();
                         for (ArrayHashElement elem : array.getHashElements()) {
-                            usedItems.add(ClassUtils.removeQuotes(elem.getKey().getText()));
+                            if (elem.getKey() != null) usedItems.add(ClassUtils.removeQuotes(elem.getKey().getText()));
                         }
                     }
 

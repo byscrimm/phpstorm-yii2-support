@@ -143,6 +143,6 @@ public class Yii2SupportSettings implements PersistentStateComponent<Yii2Support
     }
 
     public static Yii2SupportSettings getInstance(Project project) {
-        return ServiceManager.getService(project, Yii2SupportSettings.class);
+        return project.getService(Yii2SupportSettings.class);
     }
 }

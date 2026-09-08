@@ -21,24 +21,16 @@ import java.util.Arrays;
 import java.util.List;
 
 public class YiiCommandLineUtil {
-    private static final boolean is2016 = ApplicationInfo.getInstance().getMajorVersion().equals("2016");
-
-    private static final String[] knownErrors = new String[]{
-            "userName must not be null",
-            "Auth cancel",
-            "PHP home is not specified or invalid.",
-            PhpCommandSettingsBuilder.getInterpreterNotFoundError(),
-    };
-
     public static GeneralCommandLine create(Project project, String command) throws ExecutionException {
         return create(project, command, (String[]) null);
     }
 
     public static GeneralCommandLine create(Project project, String command, String... parameters) throws ExecutionException {
-        return create(project, command, Arrays.asList(parameters));
+        return create(project, command, new java.util.ArrayList<>(parameters == null ? java.util.List.of() : Arrays.asList(parameters)));
     }
 
     public static GeneralCommandLine create(Project project, String command, List<String> parameters) throws ExecutionException {
+        parameters = new java.util.ArrayList<>(parameters);
         parameters.add("--color");
 
         String yiiRootPath = YiiApplicationUtils.getYiiRootPath(project);
@@ -51,52 +43,35 @@ public class YiiCommandLineUtil {
 
     @Nullable
     public static ProcessHandler configureHandler(Project project, String command, List<String> parameters) throws ExecutionException {
+        parameters = new java.util.ArrayList<>(parameters);
         parameters.add("--color");
 
         PhpCommandSettings commandSettings = commandSettings(project, command, parameters);
         GeneralCommandLine commandLine = commandSettings.createGeneralCommandLine();
         if (commandSettings.isRemote()) {
             PhpRemoteInterpreterManager interpreterManager = PhpRemoteInterpreterManager.getInstance();
-            if (interpreterManager == null) {
-                return null;
+            if (interpreterManager == null) throw new ExecutionException("Enable the PHP Remote Interpreter plugin.");
+            try {
+                return interpreterManager.getRemoteProcessHandler(project, commandSettings.getAdditionalData(),
+                        commandLine, false, commandSettings.getAdditionalMappings());
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new ExecutionException("Yii command interrupted", e);
             }
-
-
-            return null;
         }
 
         return new OSProcessHandler(commandLine);
     }
 
     public static void processError(Throwable e) {
-        final String message;
-        if (e instanceof InvocationTargetException) {
-            message = ((InvocationTargetException) e).getTargetException().getMessage();
-        } else {
-            message = e.getMessage();
-        }
-
-        if (e instanceof InvocationTargetException || ArrayUtil.contains(message, knownErrors)) {
-            SwingUtilities.invokeLater(() -> Messages.showErrorDialog(message, "Execution Error"));
-
-            return;
-        }
-
-        throw new RuntimeException(e);
-    }
-
-    private static Method getMethod(PhpRemoteInterpreterManager manager) throws NoSuchMethodException {
-        for (Method method : manager.getClass().getMethods()) {
-            if (method.getName().equals("getRemoteProcessHandler")) {
-                return method;
-            }
-        }
-
-        throw new NoSuchMethodException("getRemoteProcessHandler");
+        com.intellij.openapi.diagnostic.Logger.getInstance(YiiCommandLineUtil.class).warn("Yii command failed", e);
+        SwingUtilities.invokeLater(() -> Messages.showErrorDialog(
+                e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage(), "Yii Command Failed"));
     }
 
     private static PhpCommandSettings commandSettings(Project project, String command, List<String> parameters) throws ExecutionException {
         String yiiRootPath = YiiApplicationUtils.getYiiRootPath(project);
+        if (yiiRootPath == null) throw new ExecutionException("Set the Yii root directory in PHP > Yii2 Support.");
         PhpCommandSettings commandSettings = PhpCommandSettingsBuilder.create(project, false);
         if (YiiApplicationUtils.getAppTemplate(project) == YiiApplicationTemplate.StarterKit) {
             commandSettings.setScript(yiiRootPath + "/console/yii");
@@ -104,6 +79,7 @@ public class YiiCommandLineUtil {
             commandSettings.setScript(yiiRootPath + "/yii");
         }
 
+        commandSettings.setWorkingDir(yiiRootPath);
         commandSettings.addArgument(command);
         commandSettings.addArguments(parameters);
 

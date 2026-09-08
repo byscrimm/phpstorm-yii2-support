@@ -32,8 +32,8 @@ public class ActiveRecordTypeProvider  implements PhpTypeProvider4  {
             String methodName = methodReference.getName();
             if (methodName == null)
                 return null;
-            if (methodName.equals("one") || methodName.equals("all")
-                    || methodName.equals("each") || methodName.equals("batch")) {
+            if (methodName.equals("one") || methodName.equals("all")) {
+                if (usesArrayResult(methodReference)) return null;
                 String signature = methodReference.getSignature();
                 int beginIndex = signature.indexOf("\\");
                 int endIndex = signature.indexOf("|");
@@ -47,6 +47,18 @@ public class ActiveRecordTypeProvider  implements PhpTypeProvider4  {
             }
         }
         return null;
+    }
+
+    public static boolean usesArrayResult(MethodReference methodReference) {
+        PhpExpression caller = methodReference.getClassReference();
+        while (caller instanceof MethodReference call) {
+            if ("asArray".equals(call.getName())) {
+                PsiElement value = com.nvlad.yii2support.common.PhpArguments.get(call,"value",0);
+                return value == null || !"false".equalsIgnoreCase(value.getText());
+            }
+            caller = call.getClassReference();
+        }
+        return false;
     }
 
     @Override
@@ -63,11 +75,9 @@ public class ActiveRecordTypeProvider  implements PhpTypeProvider4  {
         boolean classInheritsFromAD = ClassUtils.isClassInherit(classBySignature, "\\yii\\db\\BaseActiveRecord", PhpIndex.getInstance(project));
         if (classInheritsFromAD) {
             if (s.endsWith(".one"))
-                phpType.add(classBySignature.getFQN());
-            else if (s.endsWith(".all") || s.endsWith(".each")) {
+                phpType.add(classBySignature.getFQN()).add("null");
+            else if (s.endsWith(".all")) {
                 phpType.add(classBySignature.getFQN()+ "[]");
-            }else if (s.endsWith(".batch")) {
-                phpType.add(classBySignature.getFQN()+ "[][]");
             }
         }
         return phpType;

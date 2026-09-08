@@ -1,0 +1,22 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "baseBranchPatterns": [
+    "$default"
+  ],
+  "forkProcessing": "enabled",
+  "automerge": false,
+  "minimumReleaseAge": "3 days",
+  "prConcurrentLimit": 3,
+  "prHourlyLimit": 1,
+  "packageRules": [
+    {
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "dependencyDashboardApproval": true
+    }
+  ]
+}

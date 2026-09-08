@@ -1,19 +1,16 @@
-IMAGE_NAME = yii2-support-plugin
-CONTAINER_NAME = yii2-support-plugin-tmp
-DIST_DIR = build
+.PHONY: build docker offline check verify
 
-.PHONY: build docker-build extract clean
+# Export the installable ZIP directly; no temporary named container.
+build: docker
 
-build: clean docker-build extract
+docker:
+	docker build --target artifact --output type=local,dest=build/distributions .
 
-docker-build:
-	docker build -t $(IMAGE_NAME) .
+offline:
+	python3 tools/build-offline.py --test --psi-test
 
-extract:
-	mkdir -p $(DIST_DIR)
-	docker create --name $(CONTAINER_NAME) $(IMAGE_NAME)
-	docker cp $(CONTAINER_NAME):/app/build/distributions/. $(DIST_DIR)
-	docker rm $(CONTAINER_NAME)
+check: offline
+	python3 tools/verify-offline.py
 
-clean:
-	rm -rf $(DIST_DIR)/*
+verify:
+	./gradlew --no-daemon check verifyPlugin buildPlugin

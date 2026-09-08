@@ -15,12 +15,7 @@ public class ObjectFactoryReferenceContributor extends com.intellij.psi.PsiRefer
         psiReferenceRegistrar.registerReferenceProvider(ElementPattern(), new ObjectFactoryReferenceProvider());
     }
 
-    private static ElementPattern<PsiElement> ElementPattern() {
-        return PlatformPatterns.psiElement()
-                        .withParent(PlatformPatterns.or(
-                                PlatformPatterns.psiElement().withParent(ArrayCreationExpression.class),
-                                Patterns.withHashKey()
-                                        .withParent(PlatformPatterns.psiElement().withParent(ArrayCreationExpression.class))
-                        ));
+    private static ElementPattern<? extends PsiElement> ElementPattern() {
+        return PlatformPatterns.psiElement(com.jetbrains.php.lang.psi.elements.StringLiteralExpression.class);
     }
 }

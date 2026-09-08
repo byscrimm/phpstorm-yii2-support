@@ -27,13 +27,13 @@ public class MigrationsToolWindowFactory implements ToolWindowFactory {
         MigrationPanel migrationPanel = new MigrationPanel(project, toolWindow);
         ConsolePanel consolePanel = new ConsolePanel(project);
 
-        ((ToolWindowManagerEx) ToolWindowManager.getInstance(project))
-                .addToolWindowManagerListener(new MigrationToolWindowManagerListener(project, migrationPanel.getTree()));
+        project.getMessageBus().connect(project).subscribe(ToolWindowManagerListener.TOPIC,
+                new MigrationToolWindowManagerListener(project, migrationPanel.getTree()));
 
-        Content navigator = ContentFactory.SERVICE.getInstance().createContent(migrationPanel, "Explorer", false);
+        Content navigator = ContentFactory.getInstance().createContent(migrationPanel, "Explorer", false);
         toolWindow.getContentManager().addContent(navigator);
 
-        Content console = ContentFactory.SERVICE.getInstance().createContent(consolePanel, "Output", false);
+        Content console = ContentFactory.getInstance().createContent(consolePanel, "Output", false);
         toolWindow.getContentManager().addContent(console);
     }
 
@@ -43,19 +43,20 @@ public class MigrationsToolWindowFactory implements ToolWindowFactory {
         private final VirtualFileSystem fileSystem;
         private final MigrationService service;
         private final MigrationServiceListener serviceListener;
-        private boolean myToolWindowVisible = true;
+        private boolean myToolWindowVisible = false;
 
         MigrationToolWindowManagerListener(Project project, JTree tree) {
             myProject = project;
             fileMonitor = new MigrationsVirtualFileMonitor(project);
-            fileSystem = myProject.getBaseDir().getFileSystem();
+            fileSystem = com.intellij.openapi.vfs.LocalFileSystem.getInstance();
             service = MigrationService.getInstance(project);
             serviceListener = new ServiceListener(tree, project);
+            com.intellij.openapi.util.Disposer.register(project, () -> {
+                fileSystem.removeVirtualFileListener(fileMonitor);
+                service.removeListener(serviceListener);
+            });
         }
 
-        @Override
-        public void toolWindowRegistered(@NotNull String s) {
-        }
 
         @Override
         public void stateChanged(@NotNull ToolWindowManager toolWindowManager) {
@@ -85,11 +86,14 @@ public class MigrationsToolWindowFactory implements ToolWindowFactory {
 
     class ServiceListener implements MigrationServiceListener {
         private final JTree myTree;
+        private final Project project;
+        private boolean myProjectDisposed() { return project.isDisposed(); }
         private final MigrationService service;
         private final Yii2SupportSettings settings;
 
         ServiceListener(JTree tree, Project project) {
             myTree = tree;
+            this.project = project;
 
             service = MigrationService.getInstance(project);
             settings = Yii2SupportSettings.getInstance(project);
@@ -97,7 +101,9 @@ public class MigrationsToolWindowFactory implements ToolWindowFactory {
 
         @Override
         public void treeChanged() {
-            TreeUtil.updateTree(myTree, service.getMigrationCommandMap(), settings.newestFirst);
+            ApplicationManager.getApplication().invokeLater(() -> {
+                if (!myProjectDisposed()) TreeUtil.updateTree(myTree, service.getMigrationCommandMap(), settings.newestFirst);
+            });
         }
     }
 }

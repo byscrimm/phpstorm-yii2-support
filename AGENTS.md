@@ -1,0 +1,87 @@
+# Working on phpstorm-yii2-support
+
+## Start here
+
+- Follow the current user request. Discussion-only requests do not authorize edits.
+- Read `docs/PROJECT_MEMORY.md` for the latest handoff, `DEVELOPMENT_PLAN.md` for scope,
+  and the relevant source before implementation. Memory is context, not proof.
+- This is a Java plugin for JetBrains IDEs, not a PHP application or a Codex plugin.
+- `origin` is `https://github.com/byscrimm/phpstorm-yii2-support.git`;
+  `upstream` is `https://github.com/vxdy/Yii2-Support-Extended.git`.
+  The default branch is `master`; use `codex/<topic>` for new agent branches.
+- Preserve existing user changes and upstream history. Do not force-push or publish
+  releases unless the current task authorizes it. Routine local edits and checks
+  within an authorized task do not need repeated confirmation.
+- Communicate with the maintainer in Russian. Keep code identifiers and shared
+  technical documentation in English. Summarize outcome, verification and limits.
+
+## Baseline and compatibility
+
+- Read versions from `gradle.properties`; do not infer them from the calendar year.
+  Current target: PhpStorm 2026.2 / IntelliJ Platform `262.*`, Java 25.
+- Preserve plugin ID `com.yii2supportExtended`, Java package `com.nvlad.yii2support`
+  and existing settings IDs. Repository branding is separate from runtime identity.
+- Do not broaden IDE compatibility based only on compilation. Check the actual
+  target SDK and official JetBrains documentation when an API is uncertain.
+- Preserve `LICENSE.md` and credit both upstream projects. All updates to this fork
+  are developed with AI assistance; distinguish this from authorship of upstream code.
+- Do not add AI network services, API keys, telemetry or PHP execution as a side
+  effect of AI-assisted development. The plugin's analysis runs inside the IDE.
+
+## Implementation rules
+
+- Use `rg` for discovery. Match existing Java formatting; avoid unrelated rewrites.
+- Prefer shared `PhpArguments`, `PhpArrays`, `LocalPhpValues` and `YiiModelResolver`
+  helpers over new positional or fixed-parent-depth PSI heuristics.
+- Treat incomplete PHP and unknown/dynamic values conservatively. Do not invent
+  a resolved class or report an error when the analysis is ambiguous.
+- Follow IntelliJ read/write action and EDT rules. Check cancellation in scans,
+  bound recursion, and handle indexing mode before accessing indices.
+- Indexers must depend on file content rather than mutable project settings.
+  Do not query indices from indexers or type-provider `getType` implementations.
+  Existing violations belong in the roadmap; do not replicate them.
+- Avoid static caches retaining Project, PSI or VirtualFile. Use project services,
+  correct disposal and cache dependencies tied to the data being cached.
+- Quick fixes and rename handlers must preserve unrelated arguments, values,
+  comments, relation segments and aliases; use PSI manipulators and smart pointers.
+- Migration code changes need cancellation, exit-code and project-disposal handling.
+  Do not execute migrations against a user's database as a test.
+
+## Verification
+
+Run from this repository root. For source or descriptor changes on an installed SDK:
+
+```sh
+python3 tools/build-offline.py --test --psi-test
+python3 tools/verify-offline.py
+```
+
+For focused work, use `tests/` for pure logic and `psi-tests/` for actual PHP PSI.
+Add behavioral regressions for bugs and nontrivial new features, including relevant
+negative and incomplete-code cases. Do not write tests that just repeat the code.
+For documentation-only work, check links, examples and `git diff --check`; a plugin
+rebuild is unnecessary. Validate edited configuration with available tools.
+
+With dependency access, the CI path is `./gradlew --no-daemon check verifyPlugin buildPlugin`.
+Docker uses `make docker`. Respect environment permission decisions; do not bypass
+a rejected download or a missing IDE license. Record an unrun check as unrun.
+
+Core PHP PSI tests use real parser objects with a supplied class table. They do not
+exercise the full PHP index, completion UI or index-wide Find Usages/Rename.
+`verify-offline.py` is a static JVM reference check, not JetBrains Plugin Verifier.
+Never describe these checks as full IDE validation.
+
+## Finish and hand off
+
+- Review the diff and preserve test/release artifacts outside Git in `build/`.
+- Update `CHANGELOG.md` for user-visible changes and `DEVELOPMENT_PLAN.md` when
+  a milestone changes. Do not mark planned features implemented without evidence.
+- Update `docs/PROJECT_MEMORY.md` after substantial work: date, decisions, exact
+  checks performed, limitations and next step. Replace stale facts, avoid chat logs.
+- Keep tokens, credentials, personal filesystem paths, customer source/logs and
+  IDE profiles out of tracked memory. Local agent caches are ignored.
+- Release steps are in `CONTRIBUTING.md`. Never overwrite a published version with
+  different bytes or describe a prepared workflow as successfully executed.
+
+`AGENTS.md` is the canonical agent entry point. Discovery behavior is documented in
+[OpenAI Docs](https://learn.chatgpt.com/docs/agent-configuration/agents-md).

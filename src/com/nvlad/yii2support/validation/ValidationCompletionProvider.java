@@ -157,7 +157,7 @@ public class ValidationCompletionProvider extends CompletionProvider<CompletionP
         List<ArrayCreationExpression> arrayCreationExpressionList = new ArrayList<>();
         PsiElement currentElement = position.getParent();
         int limit = 15;
-        while (limit > 0 && !(currentElement instanceof Method)) {
+        while (limit > 0 && currentElement != null && !(currentElement instanceof Method)) {
             if (currentElement instanceof ArrayCreationExpression)
                 arrayCreationExpressionList.add((ArrayCreationExpression) currentElement);
             currentElement = currentElement.getParent();

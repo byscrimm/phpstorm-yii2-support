@@ -30,7 +30,7 @@ public abstract class CommandBase implements Runnable {
     protected JComponent myComponent;
     private ConsoleView myConsoleView;
     private Application myApplication;
-    private ScheduledExecutorService myExecutorService;
+
 
     CommandBase(Project project, MigrateCommand command) {
         myProject = project;
@@ -47,16 +47,16 @@ public abstract class CommandBase implements Runnable {
 
     public void repaintComponent(JComponent component) {
         myComponent = component;
-        myExecutorService = Executors.newScheduledThreadPool(1);
     }
 
     abstract void processOutput(String text);
 
     void repaintMigrationNode(Migration migration) {
-        DefaultMutableTreeNode treeNode = findTreeNode(migration);
-        if (treeNode != null) {
-            myApplication.invokeLater(() -> ((DefaultTreeModel) ((JTree) myComponent).getModel()).nodeChanged(treeNode));
-        }
+        myApplication.invokeLater(() -> {
+            if (myProject.isDisposed() || !(myComponent instanceof JTree)) return;
+            DefaultMutableTreeNode treeNode = findTreeNode(migration);
+            if (treeNode != null) ((DefaultTreeModel) ((JTree) myComponent).getModel()).nodeChanged(treeNode);
+        });
     }
 
     abstract DefaultMutableTreeNode findTreeNode(Migration migration);
@@ -72,25 +72,23 @@ public abstract class CommandBase implements Runnable {
         if (myComponent != null) {
             myApplication.invokeLater(() -> myComponent.setEnabled(false));
 
-            myExecutorService.scheduleWithFixedDelay(this::updateComponent, 0, 125, TimeUnit.MILLISECONDS);
+
         }
 
-        processHandler.waitFor();
+        while (!processHandler.waitFor(250)) {
+            if (myProject.isDisposed() || Thread.currentThread().isInterrupted()) {
+                processHandler.destroyProcess();
+                break;
+            }
+        }
 
         if (myComponent != null) {
-            myExecutorService.shutdown();
-            if (!myExecutorService.isShutdown()) {
-                myExecutorService.shutdownNow();
-            }
-
             myApplication.invokeLater(() -> {
-                myComponent.repaint();
-
-                myComponent.setEnabled(true);
+                if (!myProject.isDisposed()) { myComponent.repaint(); myComponent.setEnabled(true); }
             });
         }
 
-        return processHandler.getExitCode();
+        return processHandler.getExitCode() == null ? -1 : processHandler.getExitCode();
     }
 
     void prepareCommandParams(List<String> params, String path) {
@@ -119,6 +117,7 @@ public abstract class CommandBase implements Runnable {
 
     class CommandProcessListener implements ProcessListener {
         private final AnsiEscapeDecoder decoder = new AnsiEscapeDecoder();
+        private final java.util.Map<Key, OutputLines> streams = new java.util.concurrent.ConcurrentHashMap<>();
         private final CommandBase myProcessor;
 
         CommandProcessListener(CommandBase processor) {
@@ -132,7 +131,7 @@ public abstract class CommandBase implements Runnable {
 
         @Override
         public void processTerminated(@NotNull ProcessEvent processEvent) {
-
+            streams.values().forEach(lines -> lines.flush(myProcessor::processOutput));
         }
 
         @Override
@@ -156,7 +155,7 @@ public abstract class CommandBase implements Runnable {
                 }
             });
 
-            myProcessor.processOutput(builder.toString());
+            streams.computeIfAbsent(key, unused -> new OutputLines()).accept(builder.toString(), myProcessor::processOutput);
         }
     }
 }

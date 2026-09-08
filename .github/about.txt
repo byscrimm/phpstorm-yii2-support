@@ -1,0 +1,1 @@
+Yii2 support for PhpStorm / IntelliJ IDEA: ActiveRecord relations, completion, navigation, views, configs, routes, i18n and migrations. Fork of Yii2-Support-Extended; all updates and maintenance are developed with AI assistance.
