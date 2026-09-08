@@ -8,7 +8,12 @@
 - This is a Java plugin for JetBrains IDEs, not a PHP application or a Codex plugin.
 - `origin` is `git@github.com:byscrimm/phpstorm-yii2-support.git`;
   `upstream` is `https://github.com/vxdy/Yii2-Support-Extended.git`.
-  The default branch is `master`; use `codex/<topic>` for new agent branches.
+  The default branch is `master`; use meaningful branches such as `feature/view-parameters`, `fix/relation-navigation`
+  or `build/docker-packaging`; never use the `codex/` prefix.
+- The maintainer delegates implementation and repository maintenance to the AI agent.
+  Use normal semantic versions (MAJOR.MINOR.PATCH); prerelease suffixes are optional
+  and require an explicit reason agreed with the maintainer. Verification limits
+  belong in reports, not an automatically added RC suffix.
 - Preserve existing user changes and upstream history. Do not force-push or publish
   releases unless the current task authorizes it. Routine local edits and checks
   within an authorized task do not need repeated confirmation.

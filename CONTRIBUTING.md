@@ -10,7 +10,7 @@ Implementation priorities and current limitations are in [the plan](DEVELOPMENT_
 git clone https://github.com/byscrimm/phpstorm-yii2-support.git
 cd phpstorm-yii2-support
 git remote add upstream https://github.com/vxdy/Yii2-Support-Extended.git
-git switch -c codex/your-topic
+git switch -c feature/your-topic
 ```
 
 Use Java 25 and the SDK version in `gradle.properties`. With installed PhpStorm:
@@ -31,7 +31,11 @@ With access to dependency repositories:
 ```
 
 `make docker` builds with Java 25, runs Gradle checks and exports the ZIP to
-`build/distributions`. Plugin Verifier is a separate Gradle/CI step, not part of that
+`build/distributions`, with `SHA256SUMS` and HTML/XML test reports under `reports/`.
+No host Java or PhpStorm installation is required; the first build downloads its SDK.
+Use `make docker OUTPUT_DIR=build/docker-artifacts` for a separate export directory.
+For detailed dependency/task logs, use `make docker GRADLE_ARGS=--info`.
+Plugin Verifier is a separate Gradle/CI step, not part of that
 Docker target. Prepared build paths must be described as unverified until executed.
 
 ## Test the behavior being changed
@@ -61,8 +65,9 @@ code from examples and logs.
 
 ## Releases
 
-1. Choose a new version in `gradle.properties`; update changelog and plan. A release
-   candidate remains an RC until its stated release criteria have been met.
+1. Choose a new semantic version in `gradle.properties`; update changelog and plan.
+   Use MAJOR.MINOR.PATCH by default. Use prerelease suffixes only when explicitly
+   agreed with the maintainer; document outstanding verification separately.
 2. Run the relevant suites, official Plugin Verifier and isolated-IDE scenarios.
    Record skipped checks and blockers; do not turn a static check into a runtime claim.
 3. Build the installable ZIP and verify its descriptor, dependencies, SHA-256 and

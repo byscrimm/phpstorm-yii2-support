@@ -1,4 +1,5 @@
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 
 plugins {
     java
@@ -44,7 +45,7 @@ intellijPlatform {
         ideaVersion { sinceBuild = "262"; untilBuild = "262.*" }
     }
     pluginVerification {
-        ides { phpstorm(providers.gradleProperty("platformVersion").get()) }
+        ides { create(IntelliJPlatformType.PhpStorm, providers.gradleProperty("platformVersion").get()) }
     }
 }
 

@@ -21,13 +21,13 @@ require an AI service or an AI API key.
 | Primary IDE | PhpStorm 2026.2, platform `262.*` |
 | Local SDK used | PhpStorm 2026.2.2, build `262.10315.130` |
 | Runtime / build JDK | Java 25 |
-| Plugin version | `1.1.0-rc.2` — release candidate |
+| Plugin version | `1.1.0` |
 | IntelliJ IDEA | Requires compatible PHP and Database Tools plugins; not separately verified |
 
 The runtime plugin name remains **Yii2 Support Extended**, with ID
 `com.yii2supportExtended`. The repository name does not change installed-plugin identity.
 Full IDE integration testing and the official Plugin Verifier are still pending;
-see [verification](docs/verification/1.1.0-rc.2.md) and [the development plan](DEVELOPMENT_PLAN.md).
+see [verification](docs/verification/1.1.0.md) and [the development plan](DEVELOPMENT_PLAN.md).
 
 ## Features
 
@@ -71,7 +71,7 @@ based on public relation getters using `hasOne` or `hasMany`; SQL strings and JO
 mode arguments are excluded. Renaming one segment preserves the rest of the path
 and any JOIN alias.
 
-### GridView and DetailView in 1.1.0-rc.2
+### GridView and DetailView in 1.1.0
 
 ```php
 $query = User::find()->where(['active' => 1]);
@@ -107,7 +107,7 @@ without inserting a closure or overwriting an existing configured value.
    published release of this fork when available. GitHub **Code → Download ZIP**
    downloads source code, not an installable plugin.
 2. Open **Settings → Plugins → ⚙ → Install Plugin from Disk…**.
-3. Select `build/distributions/yii2-support-extended-1.1.0-rc.2.zip` and restart the IDE.
+3. Select `build/distributions/yii2-support-extended-1.1.0.zip` and restart the IDE.
    Do not unpack the ZIP.
 
 ## Build with Docker
@@ -118,9 +118,15 @@ Docker with BuildKit and dependency-repository access is required:
 make docker
 ```
 
-The Java 25 build runs Gradle checks and exports the installable ZIP to
-`build/distributions`. The Docker path is prepared but has not yet been executed
-in the recorded verification environment. It does not run Plugin Verifier.
+The container supplies Java 25, Gradle and the PhpStorm SDK; a host JDK or IDE is
+not required. The first build downloads the image and SDK and can take several
+minutes. BuildKit caches Gradle downloads between builds.
+
+Output in `build/distributions`: the installable ZIP, `SHA256SUMS`, and JUnit
+HTML/XML reports under `reports/`. Failed tests stop ZIP export. To choose another
+output directory, use `make docker OUTPUT_DIR=build/docker-artifacts`.
+For detailed dependency/task logs, use `make docker GRADLE_ARGS=--info`.
+Plugin Verifier is a separate `make verify` step.
 
 ## Build using installed PhpStorm
 
@@ -158,16 +164,18 @@ A prepared workflow is not evidence of a successful CI run.
 
 ## Verification and known limits
 
-The recorded local RC passed **148 pure-logic checks**, **119 PHP PSI checks**
-and static JVM reference checks for **190 plugin classes** against **1272 SDK jars**.
-The [dated artifact report](docs/verification/1.1.0-rc.2.md) records the exact ZIP and hash.
+Version 1.1.0 passed **148 pure-logic checks** and **119 PHP PSI checks** both
+locally and in Docker. The offline JAR also passed static JVM reference checks
+for **190 plugin classes** against **1272 SDK jars**.
+The [dated artifact report](docs/verification/1.1.0.md) records the exact ZIP and hash.
 
 - PHP PSI tests use the real PhpStorm parser and reference manipulator with a supplied
   class table. They do not run the full PHP index, completion UI or complete IDE
   Find Usages/Rename workflow.
 - `verify-offline.py` checks JVM classes/members and plugin descriptors. It does not
   replace JetBrains Plugin Verifier or runtime testing in an activated IDE profile.
-- Gradle/Docker execution, Plugin Verifier and full IDE integration are not yet verified.
+- Docker/Gradle build and both regression suites passed on Linux arm64.
+- Plugin Verifier and full IDE integration remain unverified.
 - Arbitrary custom Query scopes, ambiguous assignments and dynamic factories may not resolve.
 - Providers returned by arbitrary factories/search methods, post-construction provider/query mutations,
   widget configs held in variables and custom Query defaults/scopes need further analysis.

@@ -10,3 +10,6 @@ bin
 .env*
 .sentryclirc
 .DS_Store
+.serena
+.codex
+.claude

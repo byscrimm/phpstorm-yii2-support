@@ -8,6 +8,14 @@
 - Correct Renovate fork/default-branch configuration, remove inherited reviewer/automerge settings, and bound CI runtime/concurrency.
 - Preserve upstream changelog separately in [docs/UPSTREAM_CHANGELOG.md](docs/UPSTREAM_CHANGELOG.md).
 
+## 1.1.0
+
+- Adopt semantic versions without automatic RC suffixes; retain historical prerelease reports.
+- Use descriptive feature/fix/build branch names for AI-maintained development.
+- Fix Gradle verifier IDE configuration that prevented all Gradle builds.
+- Verify Docker check/buildPlugin on Linux arm64, including both regression suites and searchable options.
+- Export Docker build checksums, build properties and test reports alongside the installable ZIP.
+
 ## 1.1.0-rc.2
 
 - Replace fixed-depth widget PSI heuristics with structural GridView/DetailView contexts.

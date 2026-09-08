@@ -9,6 +9,9 @@ Read `AGENTS.md` first; verify current source and configuration before making ch
 - Fork of `vxdy/Yii2-Support-Extended`, originally `nvlad/yii2support`.
 - Upstream base when connected: `cd9cb4485e457f12a13faf2f0632ca861d8b2685`.
 - Maintainer wants a reliable, useful Yii2 plugin for PhpStorm 2026.2.
+- The maintainer delegates all implementation and repository maintenance to the AI agent.
+- Use semantic versions without automatic RC suffixes. Use meaningful `feature/`,
+  `fix/`, `build/` and `docs/` branches, never agent-branded prefixes.
 - All updates to this fork are developed with AI assistance; inherited authorship
   and BSD license remain intact. See `AI_DEVELOPMENT.md`.
 - Repository name differs from the current plugin name (`Yii2 Support Extended`),
@@ -17,7 +20,7 @@ Read `AGENTS.md` first; verify current source and configuration before making ch
 
 ## Build baseline
 
-`gradle.properties` is the version source: plugin `1.1.0-rc.2`, PhpStorm `2026.2.2`.
+`gradle.properties` is the version source: plugin `1.1.0`, PhpStorm `2026.2.2`.
 SDK used locally: `262.10315.130`; Java 25. Gradle Wrapper configuration: 9.1.0;
 IntelliJ Platform Gradle plugin: 2.18.1. Do not assume these are the latest releases.
 
@@ -26,7 +29,11 @@ IntelliJ Platform Gradle plugin: 2.18.1. Do not assume these are the latest rele
 - `tools/test-php-psi.py`: lightweight IntelliJ Core environment with real PHP parser.
 - `tools/verify-offline.py`: classfile/JVM member reference and descriptor checks.
 - `tools/smoke-ide.py`: separate full IDE test profile; requires valid activation.
-- `Dockerfile` / `Makefile`: BuildKit artifact export; `make docker` builds/tests.
+- `Dockerfile` / `Makefile`: verified BuildKit artifact export; `make docker` builds/tests.
+  `OUTPUT_DIR` changes export location; `GRADLE_ARGS=--info` enables diagnostic logs.
+  Shared Gradle download cache is locked across builds. No host JDK/IDE is required.
+- Verifier IDE configuration must use `ides.create(IntelliJPlatformType.PhpStorm, version)`,
+  not the dependency DSL method `phpstorm`; the latter prevented Gradle configuration.
 - `.github/workflows/gradle.yml`: Gradle tests, Plugin Verifier and ZIP artifacts.
 
 `build/` is generated and ignored. A fresh clone does not contain local ZIPs or SDKs.
@@ -98,16 +105,19 @@ PHPDoc types are preserved. filterModel does not determine row callback types.
 
 ## Last verified plugin artifact
 
-Current local report: [1.1.0-rc.2 verification](verification/1.1.0-rc.2.md).
+Current Docker report: [1.1.0 verification](verification/1.1.0.md).
+Previous local report: [1.1.0-rc.2 verification](verification/1.1.0-rc.2.md).
 Previous artifact: [1.1.0-rc.1 verification](verification/1.1.0-rc.1.md).
 
 - 148 pure-logic checks passed.
 - 119 PHP PSI checks passed (67 added in the GridView/DetailView increment).
 - 190 plugin classes checked against 1272 SDK jars; static JVM check passed.
 - ZIP/JAR structure, descriptor version and absence of test classes checked.
-- ZIP SHA-256: `4936701d4e559b6fc647849805739254358dfd3d75572ac85ac10dcc2a235c1c`.
+- Current ZIP hash and Docker test results are recorded in the 1.1.0 report.
+- Docker exports checksums, build properties and JUnit HTML/XML reports.
 
-These results belong to the recorded local RC artifact. They are not a claim that
+The 148/119 suites also passed in Docker on Linux arm64 for 1.1.0.
+Static JVM checking used the local macOS SDK. Results belong to the recorded artifacts. They are not a claim that
 every later checkout or a GitHub Actions run passed. Repository documentation and
 workflow maintenance do not rebuild that ZIP.
 
@@ -115,8 +125,9 @@ workflow maintenance do not rebuild that ZIP.
 
 Full IDE startup previously stopped at `No valid license found` in an isolated
 profile. Full index, completion UI and end-to-end Find Usages/Rename are unverified.
-Gradle/Docker and the official Plugin Verifier have not run locally because their
-dependency downloads were not authorized. Do not work around either condition.
+Docker/Gradle check and buildPlugin have now passed with newly authorized dependency
+access. buildSearchableOptions also completed in the container. The official Plugin
+Verifier and interactive IDE scenarios have not been run; this is not full IDE validation.
 
 Next milestone: controller-to-view flow (named args, `compact`, local arrays), then
 config merging/DI, routes/i18n and indexing/performance. GridView provider factories,
@@ -125,6 +136,6 @@ defaults/scopes remain unsupported. Full IDE callback type/completion integratio
 checkboxes in `DEVELOPMENT_PLAN.md`; these are plans, not advertised completed features.
 
 Repository setup commit `cb150d9` was pushed to origin/master through SSH. The RC.2
-increment is developed locally on `codex/gridview-models`; do not assume it has been
+increment is included in the local `build/docker-packaging` branch; do not assume it has been
 pushed or released. GitHub About changes, repository settings, bot installation and
 Marketplace publication must be reported separately when they actually occur.
