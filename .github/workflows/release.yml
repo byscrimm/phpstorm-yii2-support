@@ -1,0 +1,52 @@
+name: Prepare release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  checks:
+    if: github.repository == 'byscrimm/phpstorm-yii2-support'
+    uses: ./.github/workflows/build-and-verify.yml
+    with:
+      release: true
+  draft:
+    name: Attest and prepare draft
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: verification-${{ github.run_id }}-${{ github.run_attempt }}
+          path: release-input
+      - name: Verify transferred files
+        working-directory: release-input/artifacts
+        run: sha256sum --check SHA256SUMS
+      - name: Attest ZIP build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: release-input/artifacts/*.zip
+      - name: Create a draft with complete assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc)\.[1-9][0-9]*)?$ ]]
+          extra=()
+          if [[ "$RELEASE_TAG" == *-* ]]; then extra+=(--prerelease); fi
+          tar -czf release-input/artifacts/test-reports.tar.gz -C release-input/artifacts reports
+          cd release-input/artifacts
+          sha256sum test-reports.tar.gz >> SHA256SUMS
+          gh release create "$RELEASE_TAG" --verify-tag --draft --latest=false \
+            --title "$RELEASE_TAG" --notes-file RELEASE_NOTES.md "${extra[@]}" \
+            ./*.zip ./*.zip.sha256 SHA256SUMS build.properties build-report.json RELEASE_NOTES.md test-reports.tar.gz

@@ -8,7 +8,33 @@
 - Correct Renovate fork/default-branch configuration, remove inherited reviewer/automerge settings, and bound CI runtime/concurrency.
 - Preserve upstream changelog separately in [docs/UPSTREAM_CHANGELOG.md](docs/UPSTREAM_CHANGELOG.md).
 
-## 1.1.0
+## 1.1.0-rc.3
+
+### Added
+
+- Repository governance, descriptive branch names, Conventional Commit PR titles, issue forms and release evidence requirements.
+- CI/release reports with ZIP integrity checks, checksums, actual test counts and explicit unmeasured metrics.
+- Tag-based draft GitHub Releases with build provenance and a stable-release gate tied to IDE evidence for the exact ZIP.
+- Original BSD license, notices and author credits inside the plugin distribution.
+
+### Fixed
+
+- Replace the internal database delegate API with the public data-source accessor, preserving migration refresh behavior.
+- Pass the project to the view-call popup constructor to avoid the constructor scheduled for removal.
+
+### Included from earlier local increments
+
+- PhpStorm 2026.2 / Java 25 migration, safer SQL fixes, migration lifecycle, aliases, components, routes and translations.
+- ActiveRecord relation completion/navigation/rename and GridView/DetailView model and callback support.
+- Docker build, regression suites and searchable settings index. Detailed changes remain in the historical sections below.
+
+### Limitations
+
+- This is a release candidate. Full IDE behavior and performance verification remain pending.
+- Marketplace identity migration and third-party asset/license review are required before a separate Marketplace listing.
+- No GitHub or Marketplace publication is implied by this changelog entry.
+
+## 1.1.0 (local build, not published)
 
 - Adopt semantic versions without automatic RC suffixes; retain historical prerelease reports.
 - Use descriptive feature/fix/build branch names for AI-maintained development.

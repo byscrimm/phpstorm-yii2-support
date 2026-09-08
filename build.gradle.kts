@@ -50,6 +50,9 @@ intellijPlatform {
 }
 
 tasks {
+    processResources {
+        from(listOf("LICENSE.md", "NOTICE.md", "AUTHORS.md")) { into("META-INF") }
+    }
     buildPlugin { dependsOn(check); archiveFileName = "yii2-support-extended-${project.version}.zip" }
     test {
         maxHeapSize = "2g"

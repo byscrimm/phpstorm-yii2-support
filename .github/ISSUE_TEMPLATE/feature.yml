@@ -1,0 +1,16 @@
+name: Feature request
+description: Describe a Yii2 development task the plugin should support
+title: "feat: "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and PHP example
+      description: Show the current workflow and the result you would like in the IDE.
+    validations:
+      required: true
+  - type: textarea
+    id: cases
+    attributes:
+      label: Acceptance criteria and edge cases
+      description: Include cases where the plugin should stay silent or leave existing code unchanged.

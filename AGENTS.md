@@ -11,9 +11,10 @@
   The default branch is `master`; use meaningful branches such as `feature/view-parameters`, `fix/relation-navigation`
   or `build/docker-packaging`; never use the `codex/` prefix.
 - The maintainer delegates implementation and repository maintenance to the AI agent.
-  Use normal semantic versions (MAJOR.MINOR.PATCH); prerelease suffixes are optional
-  and require an explicit reason agreed with the maintainer. Verification limits
-  belong in reports, not an automatically added RC suffix.
+  Use semantic versions; RCs are appropriate while release validation is pending.
+  Follow docs/GOVERNANCE.md and docs/RELEASING.md for branches, commits, PRs and releases.
+  master is the stable line; no direct pushes or automatic merges into it.
+  Include an AI-Assisted trailer on new AI-assisted commits, preserving real authorship.
 - Preserve existing user changes and upstream history. Do not force-push or publish
   releases unless the current task authorizes it. Routine local edits and checks
   within an authorized task do not need repeated confirmation.
@@ -52,6 +53,13 @@
 - Migration code changes need cancellation, exit-code and project-disposal handling.
   Do not execute migrations against a user's database as a test.
 
+## Working IDE isolation
+
+Never install into, restart, reconfigure or clear caches of the maintainer's working
+PhpStorm. Do not copy its settings/license files or connect Settings Sync in a test
+profile. Use separate config/system/plugins/log paths and disposable test projects
+and databases; limit resource use. Read docs/TESTING.md before any IDE test.
+
 ## Verification
 
 Run from this repository root. For source or descriptor changes on an installed SDK:
@@ -67,8 +75,10 @@ negative and incomplete-code cases. Do not write tests that just repeat the code
 For documentation-only work, check links, examples and `git diff --check`; a plugin
 rebuild is unnecessary. Validate edited configuration with available tools.
 
-With dependency access, the CI path is `./gradlew --no-daemon check verifyPlugin buildPlugin`.
-Docker uses `make docker`. Respect environment permission decisions; do not bypass
+CI uses the reusable build-and-verify workflow and `make docker GRADLE_ARGS=verifyPlugin`.
+Run `python3 tools/check_repository.py`, `python3 -m unittest discover -s tools -p 'test_*.py'`
+and `bash tools/check-workflows.sh` for repository/release-tooling edits.
+The ordinary Docker build uses `make docker`. Respect environment permission decisions; do not bypass
 a rejected download or a missing IDE license. Record an unrun check as unrun.
 
 Core PHP PSI tests use real parser objects with a supplied class table. They do not
@@ -85,7 +95,8 @@ Never describe these checks as full IDE validation.
   checks performed, limitations and next step. Replace stale facts, avoid chat logs.
 - Keep tokens, credentials, personal filesystem paths, customer source/logs and
   IDE profiles out of tracked memory. Local agent caches are ignored.
-- Release steps are in `CONTRIBUTING.md`. Never overwrite a published version with
+- Release steps are in `docs/RELEASING.md`; stable release preparation requires runtime
+  evidence tied to the exact ZIP hash. Never fabricate metrics, review or scenario results. Never overwrite a published version with
   different bytes or describe a prepared workflow as successfully executed.
 
 `AGENTS.md` is the canonical agent entry point. Discovery behavior is documented in

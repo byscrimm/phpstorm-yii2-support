@@ -21,13 +21,14 @@ require an AI service or an AI API key.
 | Primary IDE | PhpStorm 2026.2, platform `262.*` |
 | Local SDK used | PhpStorm 2026.2.2, build `262.10315.130` |
 | Runtime / build JDK | Java 25 |
-| Plugin version | `1.1.0` |
+| Plugin version | `1.1.0-rc.3` |
 | IntelliJ IDEA | Requires compatible PHP and Database Tools plugins; not separately verified |
 
 The runtime plugin name remains **Yii2 Support Extended**, with ID
 `com.yii2supportExtended`. The repository name does not change installed-plugin identity.
-Full IDE integration testing and the official Plugin Verifier are still pending;
-see [verification](docs/verification/1.1.0.md) and [the development plan](DEVELOPMENT_PLAN.md).
+This is a release candidate. Official Plugin Verifier passed for 262.10315.130;
+full IDE integration testing is still pending;
+see [verification](docs/verification/1.1.0-rc.3.md) and [the development plan](DEVELOPMENT_PLAN.md).
 
 ## Features
 
@@ -107,7 +108,7 @@ without inserting a closure or overwriting an existing configured value.
    published release of this fork when available. GitHub **Code → Download ZIP**
    downloads source code, not an installable plugin.
 2. Open **Settings → Plugins → ⚙ → Install Plugin from Disk…**.
-3. Select `build/distributions/yii2-support-extended-1.1.0.zip` and restart the IDE.
+3. Select `build/distributions/yii2-support-extended-1.1.0-rc.3.zip` and restart the IDE.
    Do not unpack the ZIP.
 
 ## Build with Docker
@@ -164,10 +165,10 @@ A prepared workflow is not evidence of a successful CI run.
 
 ## Verification and known limits
 
-Version 1.1.0 passed **148 pure-logic checks** and **119 PHP PSI checks** both
+The current candidate passed **148 pure-logic checks** and **119 PHP PSI checks** both
 locally and in Docker. The offline JAR also passed static JVM reference checks
 for **190 plugin classes** against **1272 SDK jars**.
-The [dated artifact report](docs/verification/1.1.0.md) records the exact ZIP and hash.
+The [dated artifact report](docs/verification/1.1.0-rc.3.md) records the exact ZIP and hash.
 
 - PHP PSI tests use the real PhpStorm parser and reference manipulator with a supplied
   class table. They do not run the full PHP index, completion UI or complete IDE
@@ -175,7 +176,8 @@ The [dated artifact report](docs/verification/1.1.0.md) records the exact ZIP an
 - `verify-offline.py` checks JVM classes/members and plugin descriptors. It does not
   replace JetBrains Plugin Verifier or runtime testing in an activated IDE profile.
 - Docker/Gradle build and both regression suites passed on Linux arm64.
-- Plugin Verifier and full IDE integration remain unverified.
+- Official Plugin Verifier passed for PhpStorm 262.10315.130 with deprecated API warnings.
+- Full IDE integration remains unverified.
 - Arbitrary custom Query scopes, ambiguous assignments and dynamic factories may not resolve.
 - Providers returned by arbitrary factories/search methods, post-construction provider/query mutations,
   widget configs held in variables and custom Query defaults/scopes need further analysis.
@@ -203,3 +205,19 @@ for the work this fork builds upon.
 The original BSD license and copyright notices are preserved in [LICENSE.md](LICENSE.md).
 Earlier release history is preserved in [the upstream changelog](docs/UPSTREAM_CHANGELOG.md).
 This is a community fork, not an official Yii or JetBrains product.
+
+## Maintenance and releases
+
+All fork updates are developed with AI assistance; original authorship is retained
+in [AUTHORS.md](AUTHORS.md) and [NOTICE.md](NOTICE.md). Release ZIPs include the BSD license.
+
+- [Repository governance](docs/GOVERNANCE.md): stable master, branches, commits and PRs.
+- [Release operations](docs/RELEASING.md): RC/stable tags, draft Releases, checksums and provenance.
+- [Testing and isolation](docs/TESTING.md): evidence boundaries and protection of working IDEs.
+- [Metrics](docs/METRICS.md): actual test/build measurements; unmeasured values are explicit.
+- [Security reporting](SECURITY.md) and [GitHub configuration](docs/GITHUB_SETUP.md).
+
+CI definitions are not evidence of successful GitHub execution. Consult the actual
+[Actions runs](https://github.com/byscrimm/phpstorm-yii2-support/actions) and release report.
+Marketplace identity migration and asset/license review remain prerequisites for
+publishing this fork as a separate Marketplace plugin.

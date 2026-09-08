@@ -50,7 +50,7 @@ public class OpenViewCalls extends AnAction {
         }
 
         BaseListPopupStep<PsiReference> popupStep = new ReferenceListPopupStep("Render this View from", references);
-        ListPopup popup = new ListPopupImpl(popupStep) {
+        ListPopup popup = new ListPopupImpl(e.getProject(), popupStep) {
             @Override
             protected ListCellRenderer getListElementRenderer() {
                 return new ListCellRendererWithRightAlignedComponent<PsiReference>() {

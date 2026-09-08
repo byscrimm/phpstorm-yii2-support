@@ -10,7 +10,7 @@ Read `AGENTS.md` first; verify current source and configuration before making ch
 - Upstream base when connected: `cd9cb4485e457f12a13faf2f0632ca861d8b2685`.
 - Maintainer wants a reliable, useful Yii2 plugin for PhpStorm 2026.2.
 - The maintainer delegates all implementation and repository maintenance to the AI agent.
-- Use semantic versions without automatic RC suffixes. Use meaningful `feature/`,
+- Use semantic versions and RCs while release validation is pending. Use meaningful `feature/`,
   `fix/`, `build/` and `docs/` branches, never agent-branded prefixes.
 - All updates to this fork are developed with AI assistance; inherited authorship
   and BSD license remain intact. See `AI_DEVELOPMENT.md`.
@@ -20,7 +20,7 @@ Read `AGENTS.md` first; verify current source and configuration before making ch
 
 ## Build baseline
 
-`gradle.properties` is the version source: plugin `1.1.0`, PhpStorm `2026.2.2`.
+`gradle.properties` is the version source: plugin `1.1.0-rc.3`, PhpStorm `2026.2.2`.
 SDK used locally: `262.10315.130`; Java 25. Gradle Wrapper configuration: 9.1.0;
 IntelliJ Platform Gradle plugin: 2.18.1. Do not assume these are the latest releases.
 
@@ -34,7 +34,9 @@ IntelliJ Platform Gradle plugin: 2.18.1. Do not assume these are the latest rele
   Shared Gradle download cache is locked across builds. No host JDK/IDE is required.
 - Verifier IDE configuration must use `ides.create(IntelliJPlatformType.PhpStorm, version)`,
   not the dependency DSL method `phpstorm`; the latter prevented Gradle configuration.
-- `.github/workflows/gradle.yml`: Gradle tests, Plugin Verifier and ZIP artifacts.
+- `.github/workflows/ci.yml` calls build-and-verify.yml for policy, Docker tests,
+  official Plugin Verifier and machine-readable evidence. release.yml creates draft
+  GitHub Releases from version tags; stable eligibility requires exact-ZIP IDE evidence.
 
 `build/` is generated and ignored. A fresh clone does not contain local ZIPs or SDKs.
 No full IDE profile or IDE license data belongs in the repository.
@@ -100,12 +102,13 @@ PHPDoc types are preserved. filterModel does not determine row callback types.
   property/param tag parsers. These are test harness registrations, not production plugin dependencies.
 - Core test environment needs `TreeAspect` before `PomModelImpl`, parser registry
   defaults from the SDK, and smart-pointer initialization while the app is alive.
-- Two existing removal warnings concern a `ListPopupImpl` constructor in
-  `views/actions/OpenViewCalls`; do not confuse them with compilation failures.
+- The ListPopupImpl constructor scheduled for removal was replaced with its Project
+  overload in the repository increment. Keep remaining deprecations in the roadmap.
 
 ## Last verified plugin artifact
 
-Current Docker report: [1.1.0 verification](verification/1.1.0.md).
+Current Docker report: [1.1.0-rc.3 verification](verification/1.1.0-rc.3.md).
+Previous Docker report: [1.1.0 verification](verification/1.1.0.md).
 Previous local report: [1.1.0-rc.2 verification](verification/1.1.0-rc.2.md).
 Previous artifact: [1.1.0-rc.1 verification](verification/1.1.0-rc.1.md).
 
@@ -113,7 +116,7 @@ Previous artifact: [1.1.0-rc.1 verification](verification/1.1.0-rc.1.md).
 - 119 PHP PSI checks passed (67 added in the GridView/DetailView increment).
 - 190 plugin classes checked against 1272 SDK jars; static JVM check passed.
 - ZIP/JAR structure, descriptor version and absence of test classes checked.
-- Current ZIP hash and Docker test results are recorded in the 1.1.0 report.
+- Current ZIP hash and Docker test results are recorded in the 1.1.0-rc.3 report.
 - Docker exports checksums, build properties and JUnit HTML/XML reports.
 
 The 148/119 suites also passed in Docker on Linux arm64 for 1.1.0.
@@ -126,8 +129,9 @@ workflow maintenance do not rebuild that ZIP.
 Full IDE startup previously stopped at `No valid license found` in an isolated
 profile. Full index, completion UI and end-to-end Find Usages/Rename are unverified.
 Docker/Gradle check and buildPlugin have now passed with newly authorized dependency
-access. buildSearchableOptions also completed in the container. The official Plugin
-Verifier and interactive IDE scenarios have not been run; this is not full IDE validation.
+access. buildSearchableOptions also completed in the container. Official Plugin Verifier now passed for 262.10315.130 after replacing the internal
+DbDataSource.getDelegate call with getDelegateDataSource. The popup constructor now
+receives Project. Deprecated API usages remain; full IDE scenarios are unverified.
 
 Next milestone: controller-to-view flow (named args, `compact`, local arrays), then
 config merging/DI, routes/i18n and indexing/performance. GridView provider factories,
@@ -139,3 +143,24 @@ Repository setup commit `cb150d9` was pushed to origin/master through SSH. The R
 increment is included in the local `build/docker-packaging` branch; do not assume it has been
 pushed or released. GitHub About changes, repository settings, bot installation and
 Marketplace publication must be reported separately when they actually occur.
+
+## Repository process and workstation boundary
+
+Read GOVERNANCE.md, RELEASING.md, TESTING.md, METRICS.md and GITHUB_SETUP.md in this
+directory. The working IDE/settings, license files, Settings Sync, unrelated projects
+and live databases must not be used for testing. Use separate profiles and fixtures.
+
+Local branch: build/repository-workflow, based on ca8664e, including earlier local
+feature increments. New commits use Conventional Commits and an AI-Assisted trailer.
+Original LICENSE is unchanged and now shipped with NOTICE/AUTHORS in both build paths.
+Dependabot replaces the unactivated Renovate configuration; no automatic merges.
+Release metrics come from actual JUnit/ZIP/build results, not invented coverage.
+Release tools were tested for failed suites, stale ZIP evidence, incorrect versions
+and altered distribution notices. Runtime JSON is evidence input, not implemented UI automation.
+
+GitHub web session is now authenticated. Observed/applied on 2026-09-08: Issues enabled;
+release immutability enabled; squash-only merge with PR title/description; merged branch
+cleanup enabled; private vulnerability reporting, dependency graph and Dependabot alerts
+enabled. Secret Protection and push protection were already enabled and remain so.
+PR/CI/master protection status is recorded after the actual bootstrap run; do not infer it
+from configuration files. No tags/releases/Marketplace publication have been created.

@@ -10,8 +10,8 @@ are developed with AI assistance under the direction of the repository maintaine
 not claim that the inherited code was written by AI.
 
 AI tools help inspect the code, implement changes, write regression tests and
-maintain documentation. The maintainer sets priorities and decides what to merge
-and release. AI involvement does not establish correctness: changes must be reviewed
+maintain documentation. The maintainer sets priorities and authorizes repository operations and publication;
+agents may implement, test and prepare PRs and release drafts within that scope. AI involvement does not establish correctness: changes must be reviewed
 and checked against the target SDK, and verification reports must state their limits.
 
 The plugin's Yii2 code analysis does not require an AI service or an AI API key.
@@ -34,3 +34,14 @@ code instead of treating an old memory entry as a new instruction.
 The original authors and contributors retain credit for their work. Preserve the
 [BSD license](LICENSE.md), notices and Git history. Do not present this fork as an
 official Yii, JetBrains or upstream-author product.
+
+## Change-level disclosure
+
+Use `AI-Assisted: OpenAI Codex` in new AI-assisted commit bodies and disclose AI work
+in PR/release notes. Preserve real contributor identities and original Git history.
+Do not invent model versions, authors, co-author email addresses, independent review,
+passing tests or coverage. Distinguish an agent's self-review from a separate review.
+The distributable includes AUTHORS.md, NOTICE.md and the original LICENSE.md.
+
+Repository process: [governance](docs/GOVERNANCE.md). Release records:
+[release operations](docs/RELEASING.md). Test isolation: [testing](docs/TESTING.md).

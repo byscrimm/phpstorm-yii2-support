@@ -10,9 +10,9 @@ based on [nvlad/yii2support](https://github.com/nvlad/yii2support).
 developed with AI assistance under the maintainer's direction.** Original authorship
 and the BSD license are preserved.
 
-Current target: PhpStorm 2026.2 (`262.*`), Java 25. Version `1.1.0` builds and passes regression tests in Docker.
-Full IDE integration and Plugin Verifier checks are pending. IntelliJ
+Current target: PhpStorm 2026.2 (`262.*`), Java 25. Version `1.1.0-rc.3` builds and passes regression tests in Docker.
+Official Plugin Verifier passed for 262.10315.130; full IDE integration is pending. IntelliJ
 IDEA requires compatible PHP and Database Tools plugins and is not separately verified.
 
 [Features and installation](README.md) · [Changelog](CHANGELOG.md) ·
-[AI development](AI_DEVELOPMENT.md) · [Verification](docs/verification/1.1.0.md)
+[AI development](AI_DEVELOPMENT.md) · [Verification](docs/verification/1.1.0-rc.3.md)

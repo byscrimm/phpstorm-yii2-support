@@ -41,6 +41,7 @@ jar=build/f'yii2-support-extended-{version}.jar'
 def zip_entry(name):
  entry=zipfile.ZipInfo(name,(1980,1,1,0,0,0));entry.compress_type=zipfile.ZIP_DEFLATED;entry.external_attr=0o100644<<16;return entry
 with zipfile.ZipFile(jar,'w',zipfile.ZIP_DEFLATED) as z:
+ for name in ('LICENSE.md','NOTICE.md','AUTHORS.md'): z.writestr(zip_entry('META-INF/'+name),(root/name).read_bytes())
  for p in sorted(classes.rglob('*.class')): z.writestr(zip_entry(p.relative_to(classes).as_posix()),p.read_bytes())
  for p in sorted((root/'resources').rglob('*')):
   if not p.is_file(): continue

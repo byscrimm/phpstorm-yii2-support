@@ -167,9 +167,8 @@ abstract class CommandUpDownRedoBase extends CommandBase {
         DbPsiFacade facade = DbPsiFacade.getInstance(myProject);
         for (DbDataSource dataSource : facade.getDataSources()) {
             if (!selected.isEmpty() && !selected.equals(dataSource.getUniqueId())) continue;
-            if (dataSource.getDelegate() instanceof LocalDataSource) {
+            if (dataSource.getDelegateDataSource() instanceof LocalDataSource localDataSource) {
                 if (DbImplUtil.isConnected(dataSource)) {
-                    LocalDataSource localDataSource = (LocalDataSource) dataSource.getDelegate();
                     com.intellij.database.util.DataSourceUtilKt.performAutoSyncTask(
                             com.intellij.database.util.LoaderContext.selectGeneralTask(myProject, localDataSource), false);
                 }

@@ -1,0 +1,21 @@
+{
+  "version": "REPLACE_WITH_TESTED_VERSION",
+  "artifact_sha256": "REPLACE_WITH_EXACT_ZIP_SHA256",
+  "status": "not_run",
+  "ide_build": "REPLACE_WITH_EXACT_262_BUILD",
+  "os": "REPLACE_WITH_TEST_OS",
+  "architecture": "REPLACE_WITH_TEST_ARCHITECTURE",
+  "tested_at": "REPLACE_WITH_ACTUAL_ISO_DATE",
+  "evidence_url": "https://example.invalid/replace-with-real-report",
+  "scenarios": {
+    "installation": "not_run",
+    "completion": "not_run",
+    "navigation": "not_run",
+    "rename": "not_run",
+    "inspections": "not_run",
+    "settings": "not_run",
+    "restart": "not_run",
+    "indexing": "not_run",
+    "non_yii_project": "not_run"
+  }
+}

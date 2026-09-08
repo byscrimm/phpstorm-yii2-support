@@ -1,6 +1,7 @@
 .git
 .idea
 .gradle
+.intellijPlatform
 .gradle-home
 build
 build-cache

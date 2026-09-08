@@ -1,0 +1,29 @@
+name: Bug report
+description: Report reproducible behavior in the Yii2 plugin
+title: "fix: "
+body:
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Plugin version, exact IDE build, OS/architecture, PHP and Yii2 versions; basic/advanced/custom template.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Steps and sanitized PHP. Mark the caret; include related model/config definitions and whether indexing finished.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Relevant logs or screenshots
+      description: Remove credentials, customer code, personal paths and connection details. Report vulnerabilities privately via SECURITY.md.

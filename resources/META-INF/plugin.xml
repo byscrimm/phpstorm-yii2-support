@@ -7,7 +7,10 @@
     </description>
 
     <change-notes><![CDATA[
-      <b>1.1.0</b><br/>
+      <b>1.1.0-rc.3</b><br/>
+      Repository and release automation; original license and attribution included in the distribution.<br/>
+      Release candidate: full IDE integration verification is pending.<br/><br/>
+      <b>GridView and DetailView improvements</b><br/>
       GridView and DetailView attribute completion from data provider queries and models.
       Nested relation paths, named arguments, local provider/query variables and cursor-aware column formats.<br/>
       Types for the first value callback parameter, including arrow functions, with explicit/PHPDoc types preserved.
