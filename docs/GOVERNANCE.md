@@ -67,8 +67,9 @@ The existing `master` contains inherited/setup code whose full IDE behavior was 
 verified. It is a historical baseline, not evidence of a stable fork release.
 This governance change and previous local increments are being prepared together
 on `build/repository-workflow`; they must not be represented as already merged.
-Local version 1.1.0 was built but never publicly released. Work resumes as 1.1.0-rc.3
-until the stable release criteria are satisfied. Historical artifact reports remain intact.
+Local version 1.1.0 was built but never publicly released. The repository candidate
+was 1.1.0-rc.3. The authorized independent identity/settings boundary now starts
+2.0.0-rc.1 on refactor/yii2-insight-identity; see IDENTITY.md. Historical reports remain intact.
 
 ## Sources
 

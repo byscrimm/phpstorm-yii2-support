@@ -14,13 +14,13 @@ Read `AGENTS.md` first; verify current source and configuration before making ch
   `fix/`, `build/` and `docs/` branches, never agent-branded prefixes.
 - All updates to this fork are developed with AI assistance; inherited authorship
   and BSD license remain intact. See `AI_DEVELOPMENT.md`.
-- Repository name differs from the current plugin name (`Yii2 Support Extended`),
-  ID (`com.yii2supportExtended`) and artifact prefix (`yii2-support-extended`). These
-  runtime identifiers have deliberately not been renamed during repository setup.
+- Current name: Yii2 Insight; vendor by_scrimm; ID/package io.github.byscrimm.yii2insight.
+- User authorized independent identity migration; legacy settings stay untouched.
+- See IDENTITY.md. Current branch refactor/yii2-insight-identity is based on the unmerged repository-workflow branch.
 
 ## Build baseline
 
-`gradle.properties` is the version source: plugin `1.1.0-rc.3`, PhpStorm `2026.2.2`.
+`gradle.properties` is the version source: plugin `2.0.0-rc.1`, PhpStorm `2026.2.2`.
 SDK used locally: `262.10315.130`; Java 25. Gradle Wrapper configuration: 9.1.0;
 IntelliJ Platform Gradle plugin: 2.18.1. Do not assume these are the latest releases.
 
@@ -107,7 +107,8 @@ PHPDoc types are preserved. filterModel does not determine row callback types.
 
 ## Last verified plugin artifact
 
-Current Docker report: [1.1.0-rc.3 verification](verification/1.1.0-rc.3.md).
+Current Docker report: [2.0.0-rc.1 verification](verification/2.0.0-rc.1.md).
+Previous identity report: [1.1.0-rc.3 verification](verification/1.1.0-rc.3.md).
 Previous Docker report: [1.1.0 verification](verification/1.1.0.md).
 Previous local report: [1.1.0-rc.2 verification](verification/1.1.0-rc.2.md).
 Previous artifact: [1.1.0-rc.1 verification](verification/1.1.0-rc.1.md).
@@ -116,7 +117,7 @@ Previous artifact: [1.1.0-rc.1 verification](verification/1.1.0-rc.1.md).
 - 119 PHP PSI checks passed (67 added in the GridView/DetailView increment).
 - 190 plugin classes checked against 1272 SDK jars; static JVM check passed.
 - ZIP/JAR structure, descriptor version and absence of test classes checked.
-- Current ZIP hash and Docker test results are recorded in the 1.1.0-rc.3 report.
+- Current ZIP hash and Docker test results are recorded in the 2.0.0-rc.1 report.
 - Docker exports checksums, build properties and JUnit HTML/XML reports.
 
 The 148/119 suites also passed in Docker on Linux arm64 for 1.1.0.
@@ -181,3 +182,20 @@ for v*, has no bypass actors, and permits creating new tags. Topics are yii2,
 phpstorm-plugin, intellij-plugin and ai-assisted-development.
 No tags/releases/Marketplace publication have been created. Workflows and Dependabot
 remain on the PR branch until merge; remote settings are already applied.
+
+
+## Independent identity increment — 2026-09-08
+
+Yii2 Insight identity migration is implemented on refactor/yii2-insight-identity.
+Java source/test packages, settings class/storage, action/index/configurable IDs,
+inspection short names/descriptions and view templates are namespaced. Known original
+plugins are declared incompatible; automatic settings import is intentionally absent.
+Original author comments and LICENSE remain. See IDENTITY.md for transition details.
+
+Final local Docker/Plugin Verifier passed for 262.10315.130 (24 deprecations),
+148 core + 119 PSI checks passed; offline JVM check passed for 190 classes/1272 jars.
+Five tooling tests and actionlint passed; exact ZIP evidence is in verification/2.0.0-rc.1.md.
+GitHub About now says Yii2 Insight by by_scrimm. New branch CI must be checked separately.
+No Marketplace registration, published release, full IDE test or automatic old-settings migration.
+Priority 0 is identity; SQL-alias and asArray result-shape tasks are recorded after GridView,
+with no implementation of those two features in this change.

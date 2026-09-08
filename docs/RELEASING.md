@@ -8,14 +8,15 @@ No workflow currently uploads to Marketplace or modifies an installed IDE.
 ## Prepare a candidate
 
 1. Work on a descriptive branch; read GOVERNANCE.md. Set a new version, normally
-   `1.1.0-rc.3` for the current candidate. Update the exact CHANGELOG.md section.
+   `2.0.0-rc.1` for the current candidate. Update the exact CHANGELOG.md section.
 2. Run `python3 tools/check_repository.py`, the tooling tests, workflow validation,
    Docker suites and official Plugin Verifier. Submit a PR describing changes and
    actual results. Resolve findings instead of suppressing release checks.
-3. Review attribution, dependency/asset licenses and notices in the ZIP. Existing
-   plugin identity is still inherited; it is not ready for a separate Marketplace listing.
+3. Review attribution, dependency/asset licenses and notices in the ZIP. The independent
+   identity is documented in IDENTITY.md; asset audit and isolated-IDE validation
+   remain required before a Marketplace listing.
 4. With publication preparation authorized, tag the reviewed commit, e.g.
-   `git tag -a v1.1.0-rc.3 -m 'Yii2 support 1.1.0-rc.3'`, then push that exact tag.
+   `git tag -a v2.0.0-rc.1 -m 'Yii2 Insight 2.0.0-rc.1'`, then push that exact tag.
    Push the branch first. Never use `git push --tags`, force-push a tag or overwrite assets.
 5. The tag workflow builds and checks that exact revision, validates version/tag/ZIP,
    writes factual evidence, attests the ZIP, and creates a **draft** GitHub Release.

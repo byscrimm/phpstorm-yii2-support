@@ -25,8 +25,9 @@
 
 - Read versions from `gradle.properties`; do not infer them from the calendar year.
   Current target: PhpStorm 2026.2 / IntelliJ Platform `262.*`, Java 25.
-- Preserve plugin ID `com.yii2supportExtended`, Java package `com.nvlad.yii2support`
-  and existing settings IDs. Repository branding is separate from runtime identity.
+- The authorized independent identity is Yii2 Insight, vendor `by_scrimm`, plugin ID
+  and Java package `io.github.byscrimm.yii2insight`. Settings use `yii2-insight.xml`.
+  Keep upstream credits; do not read, migrate or overwrite legacy settings automatically.
 - Do not broaden IDE compatibility based only on compilation. Check the actual
   target SDK and official JetBrains documentation when an API is uncertain.
 - Preserve `LICENSE.md` and credit both upstream projects. All updates to this fork

@@ -19,5 +19,5 @@ for jar in jars:
  with zipfile.ZipFile(jar) as z:
   descriptor=ET.fromstring(z.read('META-INF/plugin.xml'))
   props=['-D'+e.attrib['key']+'='+e.attrib['defaultValue'] for e in descriptor.iter('registryKey') if e.attrib['key'] in ['php.allowed.parser.advancement.count','php.use.proper.incremental.psi.builder']]
-result=subprocess.run([str(java/'java'),'-ea','-Djava.awt.headless=true','-Didea.home.path='+str(ide)]+props+['-cp',str(build)+os.pathsep+cp,'com.nvlad.yii2support.PhpPsiRegressionTest'],cwd=root,timeout=60)
+result=subprocess.run([str(java/'java'),'-ea','-Djava.awt.headless=true','-Didea.home.path='+str(ide)]+props+['-cp',str(build)+os.pathsep+cp,'io.github.byscrimm.yii2insight.PhpPsiRegressionTest'],cwd=root,timeout=60)
 raise SystemExit(result.returncode)

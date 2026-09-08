@@ -1,12 +1,16 @@
 <idea-plugin>
-    <id>com.yii2supportExtended</id>
-    <name>Yii2 Support Extended</name>
-    <vendor email="m.bajtl@amr-eventtechnik.de" url="https://github.com/vxdy/">Vxdy</vendor>
-    <description>Yii2 Support Plugin Extended for PhpStorm. Enables Auto Completion and many QOL Features when developing with
-        the Yii2 Framework. Fork of nvlad's "Yii2 Support"
-    </description>
+    <id>io.github.byscrimm.yii2insight</id>
+    <name>Yii2 Insight</name>
+    <vendor url="https://github.com/byscrimm">by_scrimm</vendor>
+    <description><![CDATA[Smarter completion, navigation, and type inference for Yii2 in PhpStorm.
+        Independent fork of Vxdy's Yii2 Support Extended, based on NVlad's Yii2 Support.
+        Maintained by by_scrimm; all updates are developed with AI assistance.
+        Original authorship and BSD license are preserved.]]></description>
 
     <change-notes><![CDATA[
+      <b>2.0.0-rc.1 — Yii2 Insight</b><br/>
+      Independent plugin ID, by_scrimm vendor, Java namespace and isolated settings.
+      Existing Yii2 Support settings are not imported or modified.<br/><br/>
       <b>1.1.0-rc.3</b><br/>
       Repository and release automation; original license and attribution included in the distribution.<br/>
       Release candidate: full IDE integration verification is pending.<br/><br/>
@@ -27,6 +31,9 @@
     <!-- uncomment to enable plugin in all products
     <depends>com.intellij.modules.lang</depends>
     -->
+    <incompatible-with>com.yii2supportExtended</incompatible-with>
+    <incompatible-with>com.yii2support</incompatible-with>
+    <incompatible-with>com.nvlad.yii2-framework</incompatible-with>
     <depends>com.jetbrains.php</depends>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.database</depends>
@@ -37,143 +44,143 @@
     </depends>
 
     <extensions defaultExtensionNs="com.jetbrains.php">
-        <typeProvider4 implementation="com.nvlad.yii2support.typeprovider.YiiTypeProvider"/>
-        <typeProvider4 implementation="com.nvlad.yii2support.typeprovider.ActiveRecordTypeProvider"/>
-        <typeProvider4 implementation="com.nvlad.yii2support.widgetsconfig.WidgetCallbackTypeProvider"/>
+        <typeProvider4 implementation="io.github.byscrimm.yii2insight.typeprovider.YiiTypeProvider"/>
+        <typeProvider4 implementation="io.github.byscrimm.yii2insight.typeprovider.ActiveRecordTypeProvider"/>
+        <typeProvider4 implementation="io.github.byscrimm.yii2insight.widgetsconfig.WidgetCallbackTypeProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
 
-        <projectService serviceImplementation="com.nvlad.yii2support.utils.Yii2SupportSettings"/>
-        <projectService serviceImplementation="com.nvlad.yii2support.migrations.services.MigrationService"/>
+        <projectService serviceImplementation="io.github.byscrimm.yii2insight.utils.Yii2InsightSettings"/>
+        <projectService serviceImplementation="io.github.byscrimm.yii2insight.migrations.services.MigrationService"/>
 
-        <projectConfigurable instance="com.nvlad.yii2support.ui.settings.SettingsForm"
-                             displayName="Yii2 Support"
-                             id="Yii2Support.SettingsForm"
+        <projectConfigurable instance="io.github.byscrimm.yii2insight.ui.settings.SettingsForm"
+                             displayName="Yii2 Insight"
+                             id="io.github.byscrimm.yii2insight.SettingsForm"
                              parentId="reference.webide.settings.project.settings.php"/>
         <!-- Views -->
         <completion.contributor language="PHP"
-                                implementationClass="com.nvlad.yii2support.views.completion.CompletionContributor"/>
+                                implementationClass="io.github.byscrimm.yii2insight.views.completion.CompletionContributor"/>
         <psi.referenceContributor language="PHP"
-                                  implementation="com.nvlad.yii2support.views.references.PsiReferenceContributor"/>
-        <gotoDeclarationHandler implementation="com.nvlad.yii2support.views.navigation.ViewGotoDeclarationHandler"/>
-        <renamePsiElementProcessor implementation="com.nvlad.yii2support.views.refactor.RenameViewProcessor"
+                                  implementation="io.github.byscrimm.yii2insight.views.references.PsiReferenceContributor"/>
+        <gotoDeclarationHandler implementation="io.github.byscrimm.yii2insight.views.navigation.ViewGotoDeclarationHandler"/>
+        <renamePsiElementProcessor implementation="io.github.byscrimm.yii2insight.views.refactor.RenameViewProcessor"
                                    order="first"/>
-        <localInspection language="PHP" shortName="MissedViewInspection"
+        <localInspection language="PHP" shortName="Yii2InsightMissedViewInspection"
                          displayName="Missing View file"
                          groupName="Views" groupPath="PHP,Framework,Yii2"
                          enabledByDefault="true" level="ERROR"
-                         implementationClass="com.nvlad.yii2support.views.inspections.MissedViewInspection"/>
-        <localInspection language="PHP" shortName="RequireParameterInspection"
+                         implementationClass="io.github.byscrimm.yii2insight.views.inspections.MissedViewInspection"/>
+        <localInspection language="PHP" shortName="Yii2InsightRequireParameterInspection"
                          displayName="Require parameters"
                          groupName="Views" groupPath="PHP,Framework,Yii2"
                          enabledByDefault="true" level="ERROR"
-                         implementationClass="com.nvlad.yii2support.views.inspections.RequireParameterInspection"/>
-        <localInspection language="PHP" shortName="UnusedParameterInspection"
+                         implementationClass="io.github.byscrimm.yii2insight.views.inspections.RequireParameterInspection"/>
+        <localInspection language="PHP" shortName="Yii2InsightUnusedParameterInspection"
                          displayName="Unused parameters"
                          groupName="Views" groupPath="PHP,Framework,Yii2"
                          enabledByDefault="true" level="WARNING"
-                         implementationClass="com.nvlad.yii2support.views.inspections.UnusedParameterInspection"/>
-        <localInspection language="PHP" shortName="ViewMissedPhpDocInspection"
+                         implementationClass="io.github.byscrimm.yii2insight.views.inspections.UnusedParameterInspection"/>
+        <localInspection language="PHP" shortName="Yii2InsightViewMissedPhpDocInspection"
                          displayName="Missed PhpDoc variable declaration"
                          groupName="Views" groupPath="PHP,Framework,Yii2"
                          enabledByDefault="false" level="WARNING"
-                         implementationClass="com.nvlad.yii2support.views.inspections.ViewMissedPhpDocInspection"/>
+                         implementationClass="io.github.byscrimm.yii2insight.views.inspections.ViewMissedPhpDocInspection"/>
 
-        <fileBasedIndex implementation="com.nvlad.yii2support.views.index.ViewFileIndex" id="view-index"/>
+        <fileBasedIndex implementation="io.github.byscrimm.yii2insight.views.index.ViewFileIndex" id="io.github.byscrimm.yii2insight.views"/>
 
-        <projectConfigurable instance="com.nvlad.yii2support.views.settings.ViewSettings"
+        <projectConfigurable instance="io.github.byscrimm.yii2insight.views.settings.ViewSettings"
                              displayName="Views"
-                             id="Yii2Support.ViewSettings"
-                             parentId="Yii2Support.SettingsForm"
+                             id="io.github.byscrimm.yii2insight.ViewSettings"
+                             parentId="io.github.byscrimm.yii2insight.SettingsForm"
                              nonDefaultProject="true"/>
 
         <!-- Object Factory -->
-        <psi.referenceContributor language="PHP" implementation="com.nvlad.yii2support.objectfactory.ObjectFactoryReferenceContributor"/>
-        <psi.referenceContributor language="PHP" implementation="com.nvlad.yii2support.url.UrlReferenceContributor"/>
+        <psi.referenceContributor language="PHP" implementation="io.github.byscrimm.yii2insight.objectfactory.ObjectFactoryReferenceContributor"/>
+        <psi.referenceContributor language="PHP" implementation="io.github.byscrimm.yii2insight.url.UrlReferenceContributor"/>
         <completion.contributor language="PHP"
-                                implementationClass="com.nvlad.yii2support.objectfactory.ObjectFactoryCompletionContributor"/>
-        <localInspection language="PHP" shortName="MissedFieldInspection"
+                                implementationClass="io.github.byscrimm.yii2insight.objectfactory.ObjectFactoryCompletionContributor"/>
+        <localInspection language="PHP" shortName="Yii2InsightMissedFieldInspection"
                          displayName="Missed field"
                          groupName="Object Factory" groupPath="PHP,Framework,Yii2"
                          enabledByDefault="true" level="ERROR"
-                         implementationClass="com.nvlad.yii2support.objectfactory.ObjectFactoryMissedFieldInspection"/>
+                         implementationClass="io.github.byscrimm.yii2insight.objectfactory.ObjectFactoryMissedFieldInspection"/>
 
         <!-- i18n -->
-        <completion.contributor language="PHP" implementationClass="com.nvlad.yii2support.i18n.CompletionContributor"/>
+        <completion.contributor language="PHP" implementationClass="io.github.byscrimm.yii2insight.i18n.CompletionContributor"/>
 
         <!-- Database -->
         <completion.contributor language="PHP"
-                                implementationClass="com.nvlad.yii2support.database.QueryCompletionContributor"/>
+                                implementationClass="io.github.byscrimm.yii2insight.database.QueryCompletionContributor"/>
         <completion.contributor language="PHP"
-                                implementationClass="com.nvlad.yii2support.database.ParamsCompletionContributor"/>
+                                implementationClass="io.github.byscrimm.yii2insight.database.ParamsCompletionContributor"/>
         <completion.contributor language="PHP"
-                                implementationClass="com.nvlad.yii2support.forms.FieldAttributesCompletionContributor"/>
+                                implementationClass="io.github.byscrimm.yii2insight.forms.FieldAttributesCompletionContributor"/>
         <completion.contributor language="PHP"
-                                implementationClass="com.nvlad.yii2support.forms.ActiveFormCompletionContributor"/>
+                                implementationClass="io.github.byscrimm.yii2insight.forms.ActiveFormCompletionContributor"/>
 
-        <localInspection language="PHP" shortName="MissedParamInspection"
+        <localInspection language="PHP" shortName="Yii2InsightMissedParamInspection"
                          displayName="Wrong database parameters"
                          groupName="Database" groupPath="PHP,Framework,Yii2"
                          enabledByDefault="true" level="ERROR"
-                         implementationClass="com.nvlad.yii2support.database.MissedParamInspection"/>
-        <localInspection language="PHP" shortName="PropertiesInspection"
+                         implementationClass="io.github.byscrimm.yii2insight.database.MissedParamInspection"/>
+        <localInspection language="PHP" shortName="Yii2InsightPropertiesInspection"
                          displayName="Missing property"
                          groupName="Database" groupPath="PHP,Framework,Yii2"
                          enabledByDefault="true" level="ERROR"
-                         implementationClass="com.nvlad.yii2support.properties.PropertiesInspection"/>
-        <localInspection language="PHP" shortName="UndetectableTableInspection"
+                         implementationClass="io.github.byscrimm.yii2insight.properties.PropertiesInspection"/>
+        <localInspection language="PHP" shortName="Yii2InsightUndetectableTableInspection"
                          displayName="Undetectable table for ActiveRecord"
                          groupName="Database" groupPath="PHP,Framework,Yii2"
                          enabledByDefault="true" level="ERROR"
-                         implementationClass="com.nvlad.yii2support.database.UndetectableTableInspection"/>
-        <localInspection language="PHP" shortName="MissingActiveRecordInActiveQueryInspection"
+                         implementationClass="io.github.byscrimm.yii2insight.database.UndetectableTableInspection"/>
+        <localInspection language="PHP" shortName="Yii2InsightMissingActiveRecordInActiveQueryInspection"
                          displayName="Can not find connected ActiveRecord class."
                          groupName="Database" groupPath="PHP,Framework,Yii2"
                          enabledByDefault="true" level="ERROR"
-                         implementationClass="com.nvlad.yii2support.database.MissingActiveRecordInActiveQueryInspection"/>
+                         implementationClass="io.github.byscrimm.yii2insight.database.MissingActiveRecordInActiveQueryInspection"/>
 
-        <projectConfigurable instance="com.nvlad.yii2support.database.settings.SettingsForm"
+        <projectConfigurable instance="io.github.byscrimm.yii2insight.database.settings.SettingsForm"
                              displayName="Database"
-                             id="Yii2Support.DatabaseSettings"
-                             parentId="Yii2Support.SettingsForm" order="first"
+                             id="io.github.byscrimm.yii2insight.DatabaseSettings"
+                             parentId="io.github.byscrimm.yii2insight.SettingsForm" order="first"
                              nonDefaultProject="true"/>
 
         <!-- Yii Configurations -->
-        <fileBasedIndex implementation="com.nvlad.yii2support.configurations.ComponentsIndex" id="components-index"/>
+        <fileBasedIndex implementation="io.github.byscrimm.yii2insight.configurations.ComponentsIndex" id="io.github.byscrimm.yii2insight.components"/>
         <completion.contributor language="PHP"
-                                implementationClass="com.nvlad.yii2support.configurations.YiiAppCompletionContributor"/>
+                                implementationClass="io.github.byscrimm.yii2insight.configurations.YiiAppCompletionContributor"/>
 
         <completion.contributor language="PHP"
-                                implementationClass="com.nvlad.yii2support.widgetsconfig.WidgetConfigCompletionContributor"/>
+                                implementationClass="io.github.byscrimm.yii2insight.widgetsconfig.WidgetConfigCompletionContributor"/>
 
         <!-- Validation -->
         <completion.contributor language="PHP"
-                                implementationClass="com.nvlad.yii2support.validation.ValidationCompletionContributor"/>
+                                implementationClass="io.github.byscrimm.yii2insight.validation.ValidationCompletionContributor"/>
 
         <!-- AttributeLabels -->
         <completion.contributor language="PHP"
-                                implementationClass="com.nvlad.yii2support.attributeLabels.AttributeLabelCompletionContributor"/>
+                                implementationClass="io.github.byscrimm.yii2insight.attributeLabels.AttributeLabelCompletionContributor"/>
 
         <!-- ActiveRecord relations -->
-        <referencesSearch implementation="com.nvlad.yii2support.relations.RelationReferencesSearch"/>
-        <completion.contributor language="PHP" implementationClass="com.nvlad.yii2support.relations.RelationCompletionContributor"/>
-        <psi.referenceContributor language="PHP" implementation="com.nvlad.yii2support.relations.RelationReferenceContributor"/>
+        <referencesSearch implementation="io.github.byscrimm.yii2insight.relations.RelationReferencesSearch"/>
+        <completion.contributor language="PHP" implementationClass="io.github.byscrimm.yii2insight.relations.RelationCompletionContributor"/>
+        <psi.referenceContributor language="PHP" implementation="io.github.byscrimm.yii2insight.relations.RelationReferenceContributor"/>
 
         <!-- Url -->
         <completion.contributor language="PHP"
-                                implementationClass="com.nvlad.yii2support.url.UrlCompletionContributor"/>
-        <!--        <psi.referenceContributor language="PHP" implementation="com.nvlad.yii2support.url.UrlReferenceContributor"/>-->
+                                implementationClass="io.github.byscrimm.yii2insight.url.UrlCompletionContributor"/>
+        <!--        <psi.referenceContributor language="PHP" implementation="io.github.byscrimm.yii2insight.url.UrlReferenceContributor"/>-->
 
         <!-- Migrations -->
-        <toolWindow id="Migrations" anchor="bottom"
-                    factoryClass="com.nvlad.yii2support.migrations.ui.toolWindow.MigrationsToolWindowFactory"
+        <toolWindow id="Yii2 Insight Migrations" anchor="bottom"
+                    factoryClass="io.github.byscrimm.yii2insight.migrations.ui.toolWindow.MigrationsToolWindowFactory"
                     icon="/icons/migration_tool_window.png"/>
     </extensions>
 
     <actions>
         <!-- Add your actions here -->
-        <action id="yii2support.GotoViewCalls" class="com.nvlad.yii2support.views.actions.OpenViewCalls"
+        <action id="io.github.byscrimm.yii2insight.GotoViewCalls" class="io.github.byscrimm.yii2insight.views.actions.OpenViewCalls"
                 text="Goto View Render Call">
             <add-to-group group-id="GoToMenu" anchor="last"/>
             <keyboard-shortcut keymap="$default" first-keystroke="alt R"/>
@@ -184,7 +191,7 @@
     <!--
     <project-components>
         <component>
-            <implementation-class>Yii2SupportSettings</implementation-class>
+            <implementation-class>Yii2InsightSettings</implementation-class>
         </component>
 
     </project-components>

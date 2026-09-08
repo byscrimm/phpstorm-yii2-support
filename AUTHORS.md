@@ -4,7 +4,7 @@
   https://github.com/nvlad/yii2support. Original copyright notice is in LICENSE.md.
 - **Vxdy and contributors** — Yii2 Support Extended:
   https://github.com/vxdy/Yii2-Support-Extended.
-- **byscrimm** — publisher and maintainer of this independent fork:
+- **by_scrimm** (GitHub: byscrimm) — publisher and maintainer of this independent fork:
   https://github.com/byscrimm/phpstorm-yii2-support.
 
 The preserved Git history records individual contributions; this list is not an

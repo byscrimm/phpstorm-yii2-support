@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.0.0-rc.1
+
+### Changed
+- Rename the independent plugin to Yii2 Insight, maintained by by_scrimm.
+- Move Java sources and tests to io.github.byscrimm.yii2insight; use that independent plugin ID.
+- Namespace settings, inspections, actions, indexes and templates; package yii2-insight ZIPs.
+- Preserve upstream authorship, BSD license and AI development disclosure.
+
+### Breaking changes
+- This is a separate plugin identity, not an in-place update of Yii2 Support Extended.
+- Project settings start in yii2-insight.xml; legacy yii2settings.xml is never imported or overwritten automatically.
+- Legacy inspection profile selections, suppressions and action shortcuts are not automatically migrated.
+- Declare incompatibility with the known upstream plugin IDs to avoid duplicate providers and inspections.
+- Full isolated-IDE validation remains pending; this is a release candidate.
+
 ## Unreleased
 
 - Connect the development checkout to `byscrimm/phpstorm-yii2-support` while preserving upstream history.

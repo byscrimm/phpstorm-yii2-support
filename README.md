@@ -1,4 +1,4 @@
-# PhpStorm Yii2 Support
+# Yii2 Insight
 
 English | [Русский](README.ru.md)
 
@@ -21,14 +21,14 @@ require an AI service or an AI API key.
 | Primary IDE | PhpStorm 2026.2, platform `262.*` |
 | Local SDK used | PhpStorm 2026.2.2, build `262.10315.130` |
 | Runtime / build JDK | Java 25 |
-| Plugin version | `1.1.0-rc.3` |
+| Plugin version | `2.0.0-rc.1` |
 | IntelliJ IDEA | Requires compatible PHP and Database Tools plugins; not separately verified |
 
-The runtime plugin name remains **Yii2 Support Extended**, with ID
-`com.yii2supportExtended`. The repository name does not change installed-plugin identity.
+The plugin is **Yii2 Insight**, by **by_scrimm**, with independent ID
+`io.github.byscrimm.yii2insight`. See [identity and settings transition](docs/IDENTITY.md).
 This is a release candidate. Official Plugin Verifier passed for 262.10315.130;
 full IDE integration testing is still pending;
-see [verification](docs/verification/1.1.0-rc.3.md) and [the development plan](DEVELOPMENT_PLAN.md).
+see [verification](docs/verification/2.0.0-rc.1.md) and [the development plan](DEVELOPMENT_PLAN.md).
 
 ## Features
 
@@ -46,7 +46,7 @@ see [verification](docs/verification/1.1.0-rc.3.md) and [the development plan](D
 | Migrations | History, apply/undo/redo actions, command output and selected datasource synchronization |
 
 Database features need a configured IDE datasource. Configure the Yii root, views,
-datasource and migration commands in **Settings → PHP → Yii2 Support**.
+datasource and migration commands in **Settings → PHP → Yii2 Insight**.
 Some features are inherited and still need full IDE regression coverage. Dynamic
 PHP constructs may remain unresolved rather than receiving guessed results.
 
@@ -108,7 +108,7 @@ without inserting a closure or overwriting an existing configured value.
    published release of this fork when available. GitHub **Code → Download ZIP**
    downloads source code, not an installable plugin.
 2. Open **Settings → Plugins → ⚙ → Install Plugin from Disk…**.
-3. Select `build/distributions/yii2-support-extended-1.1.0-rc.3.zip` and restart the IDE.
+3. Select `build/distributions/yii2-insight-2.0.0-rc.1.zip` and restart the IDE.
    Do not unpack the ZIP.
 
 ## Build with Docker
@@ -168,7 +168,7 @@ A prepared workflow is not evidence of a successful CI run.
 The current candidate passed **148 pure-logic checks** and **119 PHP PSI checks** both
 locally and in Docker. The offline JAR also passed static JVM reference checks
 for **190 plugin classes** against **1272 SDK jars**.
-The [dated artifact report](docs/verification/1.1.0-rc.3.md) records the exact ZIP and hash.
+The [dated artifact report](docs/verification/2.0.0-rc.1.md) records the exact ZIP and hash.
 
 - PHP PSI tests use the real PhpStorm parser and reference manipulator with a supplied
   class table. They do not run the full PHP index, completion UI or complete IDE
@@ -219,5 +219,5 @@ in [AUTHORS.md](AUTHORS.md) and [NOTICE.md](NOTICE.md). Release ZIPs include the
 
 CI definitions are not evidence of successful GitHub execution. Consult the actual
 [Actions runs](https://github.com/byscrimm/phpstorm-yii2-support/actions) and release report.
-Marketplace identity migration and asset/license review remain prerequisites for
+Isolated-IDE validation and asset/license review remain prerequisites for
 publishing this fork as a separate Marketplace plugin.
