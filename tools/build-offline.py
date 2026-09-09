@@ -48,7 +48,7 @@ with zipfile.ZipFile(jar,'w',zipfile.ZIP_DEFLATED) as z:
   rel=p.relative_to(root/'resources').as_posix()
   data=p.read_bytes()
   if rel=='META-INF/plugin.xml':
-   text=data.decode().replace('<idea-plugin>',f'<idea-plugin>\n    <version>{version}</version>\n    <idea-version since-build="262" until-build="262.*"/>',1)
+   text=data.decode().replace('<idea-plugin>',f'<idea-plugin>\n    <version>{version}</version>\n    <idea-version since-build="262.10315.130" until-build="262.*"/>',1)
    data=text.encode()
   z.writestr(zip_entry(rel),data)
 if args.test:

@@ -87,7 +87,7 @@ with zipfile.ZipFile(artifact) as z:
    value=node.get(attr)
    if value and value.startswith('io.github.byscrimm.yii2insight.') and value.replace('.','/')+'.class' not in z.namelist():issues.add('Descriptor class missing: '+value)
  if descriptor.findtext('id')!='io.github.byscrimm.yii2insight':issues.add('Plugin ID changed unexpectedly')
- if descriptor.find('idea-version').attrib!={'since-build':'262','until-build':'262.*'}:issues.add('Wrong compatibility range')
+ if descriptor.find('idea-version').attrib!={'since-build':'262.10315.130','until-build':'262.*'}:issues.add('Wrong compatibility range')
 for issue in sorted(issues):print(issue)
 print(f'{"FAIL" if issues else "PASS"}: {count} plugin classes; JVM class/member references and descriptor checked against {len(archives)-1} SDK jars')
 for z in archives:z.close()

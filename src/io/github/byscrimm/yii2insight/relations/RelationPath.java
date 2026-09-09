@@ -3,7 +3,7 @@ package io.github.byscrimm.yii2insight.relations;
 import java.util.*;
 import java.util.regex.Pattern;
 
-/** Exact source offsets allow renaming one relation without touching neighbours or JOIN aliases. */
+/** Exact source offsets identify navigation links without including neighbours or JOIN aliases. */
 public final class RelationPath {
     public record Segment(String name, int start, int end) {}
     private static final Pattern PATH = Pattern.compile("[a-zA-Z_][a-zA-Z_0-9]*(?:\\.[a-zA-Z_][a-zA-Z_0-9]*)*");
@@ -25,10 +25,5 @@ public final class RelationPath {
     public static String property(String getter) {
         if (getter == null || !getter.startsWith("get") || getter.length() == 3) return null;
         return Character.toLowerCase(getter.charAt(3)) + getter.substring(4);
-    }
-    public static String rename(String value, Segment segment, String getter) {
-        String property = property(getter);
-        if (property == null || !PATH.matcher(property).matches() || property.contains(".")) return value;
-        return value.substring(0,segment.start) + property + value.substring(segment.end);
     }
 }

@@ -42,7 +42,7 @@ sourceSets {
 intellijPlatform {
     pluginConfiguration {
         name = "Yii2 Insight"
-        ideaVersion { sinceBuild = "262"; untilBuild = "262.*" }
+        ideaVersion { sinceBuild = "262.10315.130"; untilBuild = "262.*" }
     }
     pluginVerification {
         ides { create(IntelliJPlatformType.PhpStorm, providers.gradleProperty("platformVersion").get()) }

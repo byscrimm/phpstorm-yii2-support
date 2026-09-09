@@ -67,8 +67,6 @@ public final class CoreRegressionTest {
         equal(null, io.github.byscrimm.yii2insight.migrations.commands.MigrationOutput.parse("Unrelated output"));
         var path = io.github.byscrimm.yii2insight.relations.RelationPath.segments("orders.items.product AS p", true);
         equal(3, path.size()); equal("items", path.get(1).name());
-        equal("orders.lines.product AS p", io.github.byscrimm.yii2insight.relations.RelationPath.rename("orders.items.product AS p", path.get(1), "getLines"));
-        equal("orders.items.product AS p", io.github.byscrimm.yii2insight.relations.RelationPath.rename("orders.items.product AS p", path.get(1), "destroy"));
         equal(List.of(), io.github.byscrimm.yii2insight.relations.RelationPath.segments("orders AS o", false));
         equal(List.of(), io.github.byscrimm.yii2insight.relations.RelationPath.segments("orders..items", true));
         equal(List.of(), io.github.byscrimm.yii2insight.relations.RelationPath.segments("orders; DROP", true));

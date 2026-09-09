@@ -10,7 +10,7 @@ The maintainer authorized this independent identity on 2026-09-08.
 | GitHub repository | byscrimm/phpstorm-yii2-support |
 | Distribution prefix | yii2-insight |
 | Project settings component / file | Yii2 Insight / yii2-insight.xml |
-| First independent candidate | 2.0.0-rc.1 |
+| First stable version being prepared | 1.0.0 |
 
 The GitHub account spelling is byscrimm; the public vendor name is by_scrimm.
 The namespace follows reverse-domain Java naming. The ID is distinct from the
@@ -27,8 +27,12 @@ Settings start independently. The plugin does not read, migrate or overwrite
 legacy yii2settings.xml. Configure Yii2 Insight explicitly in the test project.
 Its settings page, actions, index identifiers, inspections, descriptions and view
 templates have separate names. Legacy inspection profile choices/suppressions
-and custom keyboard mappings are not automatically transferred. This deliberate
-compatibility boundary is why the version moves to 2.0.0-rc.1.
+and custom keyboard mappings are not automatically transferred.
+
+Yii2 Insight starts its own public version sequence at 1.0.0-rc.1, followed by
+1.0.0 after release validation. The upstream version sequence is independent.
+The earlier 2.0.0-rc.1 identity build was never published; its verification report
+remains historical evidence for those exact bytes, not for the renumbered candidate.
 
 The working PhpStorm and its settings are not modified by the build. Installation,
 incompatibility handling and settings persistence still require isolated-IDE tests

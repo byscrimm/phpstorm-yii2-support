@@ -72,7 +72,7 @@ def inspect_zip(path, version, root=ROOT):
                     if jar.read("META-INF/" + notice) != (root / notice).read_bytes():
                         raise ValueError("Missing or changed distribution notice: " + notice)
                 compatibility = descriptor.find("idea-version")
-                if compatibility is None or compatibility.attrib != {"since-build": "262", "until-build": "262.*"}:
+                if compatibility is None or compatibility.attrib != {"since-build": "262.10315.130", "until-build": "262.*"}:
                     raise ValueError("Unexpected compatibility range; review the release validator")
                 descriptors.append({"id": descriptor.findtext("id"), "compatibility": compatibility.attrib})
     if len(descriptors) != 1:
