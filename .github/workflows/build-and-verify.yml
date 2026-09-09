@@ -1,0 +1,57 @@
+name: Build and verify
+on:
+  workflow_call:
+    inputs:
+      release:
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  policy:
+    name: Repository policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: python3 tools/check_repository.py
+      - run: python3 -m unittest discover -s tools -p 'test_*.py'
+      - run: bash tools/check-workflows.sh
+  build:
+    name: Build and verify
+    needs: policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Docker tests, packaging and official Plugin Verifier
+        shell: bash
+        run: |
+          mkdir -p build/ci
+          started=$SECONDS
+          make docker GRADLE_ARGS=verifyPlugin OUTPUT_DIR=build/ci/artifacts 2>&1 | tee build/ci/docker.log
+          echo "BUILD_DURATION_SECONDS=$((SECONDS - started))" >> "$GITHUB_ENV"
+      - name: Validate ZIP and write release evidence
+        env:
+          BUILD_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python3 tools/release_tools.py --directory build/ci/artifacts --verifier passed --duration-seconds "$BUILD_DURATION_SECONDS"
+          cat build/ci/artifacts/RELEASE_NOTES.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Enforce release eligibility
+        if: inputs.release
+        env:
+          BUILD_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: python3 tools/release_tools.py --directory build/ci/artifacts --verifier passed --duration-seconds "$BUILD_DURATION_SECONDS" --release
+      - name: Preserve artifacts and diagnostics, including failed builds
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: verification-${{ github.run_id }}-${{ github.run_attempt }}
+          path: build/ci/
+          if-no-files-found: warn
+          retention-days: 30

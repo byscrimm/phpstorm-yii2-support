@@ -1,18 +1,18 @@
-# Yii2 Support for PhpStorm / IntelliJ IDEA
+# Yii2 Insight
 
-Enhanced Yii2 development tools: ActiveRecord relation completion and navigation,
-query type support, view templates, configuration arrays, application components,
-model attributes, validation rules, routes, translations, SQL parameters and migrations.
+Yii2 Insight brings Yii2 completion, relation navigation/refactoring, PHPDoc assistance,
+GridView/DetailView model inference, views, configuration, forms, routes, translations,
+database helpers and migration tools to PhpStorm 2026.2.2 (262.10315.130) through 2026.2.x.
 
-A fork of [vxdy/Yii2-Support-Extended](https://github.com/vxdy/Yii2-Support-Extended),
-based on [nvlad/yii2support](https://github.com/nvlad/yii2support).
-**All updates, fixes, enhancements and documentation changes in this fork are
-developed with AI assistance under the maintainer's direction.** Original authorship
-and the BSD license are preserved.
+Inherited from Vxdy’s Yii2 Support Extended / NVlad’s Yii2 Support: view, configuration,
+form, rule, database, basic type and migration functionality. Added in this fork:
+shared relation analysis, nested paths and aliases, getter/PHPDoc usage and rename
+coordination, relation documentation actions, improved widget/callback inference,
+modern IDE integration and reproducible verification infrastructure.
 
-Current target: PhpStorm 2026.2 (`262.*`), Java 25. Version `1.1.0-rc.1` is a release
-candidate; full IDE integration and Plugin Verifier checks are pending. IntelliJ
-IDEA requires compatible PHP and Database Tools plugins and is not separately verified.
+Maintained by by_scrimm with AI-assisted development. Original authorship and BSD
+license are preserved. No AI account, key or external AI service is required to use it.
+Main workflows were manually tested during release-candidate development; bugs may
+remain. [Report issues](https://github.com/byscrimm/phpstorm-yii2-support/issues).
 
-[Features and installation](README.md) · [Changelog](CHANGELOG.md) ·
-[AI development](AI_DEVELOPMENT.md) · [Verification](docs/verification/1.1.0-rc.1.md)
+[Full capabilities](README.md) · [Provenance](docs/FEATURES.md) · [Changelog](CHANGELOG.md)

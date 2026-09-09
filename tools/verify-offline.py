@@ -4,7 +4,7 @@ import argparse, pathlib, zipfile, struct, functools, xml.etree.ElementTree as E
 p=argparse.ArgumentParser();p.add_argument('--ide',default='/Applications/PhpStorm.app/Contents');args=p.parse_args()
 root=pathlib.Path(__file__).resolve().parent.parent;ide=pathlib.Path(args.ide)
 if (ide/'Contents').is_dir():ide/='Contents'
-artifact=root/'build/offline'/('yii2-support-extended-'+dict(line.split('=',1) for line in (root/'gradle.properties').read_text().splitlines() if '=' in line)['pluginVersion']+'.jar')
+artifact=root/'build/offline'/('yii2-insight-'+dict(line.split('=',1) for line in (root/'gradle.properties').read_text().splitlines() if '=' in line)['pluginVersion']+'.jar')
 class Reader:
  def __init__(self,b):self.b=b;self.i=0
  def take(self,n):b=self.b[self.i:self.i+n];self.i+=n;return b
@@ -85,9 +85,9 @@ with zipfile.ZipFile(artifact) as z:
  for node in descriptor.iter():
   for attr in ('implementation','implementationClass','instance','serviceImplementation','factoryClass','class'):
    value=node.get(attr)
-   if value and value.startswith('com.nvlad.') and value.replace('.','/')+'.class' not in z.namelist():issues.add('Descriptor class missing: '+value)
- if descriptor.findtext('id')!='com.yii2supportExtended':issues.add('Plugin ID changed unexpectedly')
- if descriptor.find('idea-version').attrib!={'since-build':'262','until-build':'262.*'}:issues.add('Wrong compatibility range')
+   if value and value.startswith('io.github.byscrimm.yii2insight.') and value.replace('.','/')+'.class' not in z.namelist():issues.add('Descriptor class missing: '+value)
+ if descriptor.findtext('id')!='io.github.byscrimm.yii2insight':issues.add('Plugin ID changed unexpectedly')
+ if descriptor.find('idea-version').attrib!={'since-build':'262.10315.130','until-build':'262.*'}:issues.add('Wrong compatibility range')
 for issue in sorted(issues):print(issue)
 print(f'{"FAIL" if issues else "PASS"}: {count} plugin classes; JVM class/member references and descriptor checked against {len(archives)-1} SDK jars')
 for z in archives:z.close()

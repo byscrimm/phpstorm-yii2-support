@@ -1,6 +1,7 @@
 .git
 .idea
 .gradle
+.intellijPlatform
 .gradle-home
 build
 build-cache
@@ -10,3 +11,6 @@ bin
 .env*
 .sentryclirc
 .DS_Store
+.serena
+.codex
+.claude
