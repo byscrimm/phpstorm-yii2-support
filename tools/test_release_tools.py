@@ -69,15 +69,16 @@ class ReleaseToolsTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             (root / "resources/META-INF").mkdir(parents=True)
-            (root / "resources/META-INF/plugin.xml").write_text('<idea-plugin><id>example</id></idea-plugin>')
+            (root / "resources/META-INF/plugin.xml").write_text('<idea-plugin><id>example</id><name>Example</name><vendor>Maintainer</vendor></idea-plugin>')
             for name in ("LICENSE.md", "NOTICE.md", "AUTHORS.md"):
                 (root / name).write_text(name)
             archive = root / "plugin.zip"
 
-            def build(version="1.0.0", changed_notice=False, test_class=False):
+            def build(version="1.0.0", changed_notice=False, test_class=False, vendor="Maintainer", missing_description=False, since="262.10315.130"):
                 data = io.BytesIO()
                 with zipfile.ZipFile(data, "w") as jar:
-                    jar.writestr("META-INF/plugin.xml", '<idea-plugin><id>example</id><version>' + version + '</version><idea-version since-build="262" until-build="262.*"/></idea-plugin>')
+                    inspection = '<extensions><localInspection shortName="ExampleInspection"/></extensions>' if missing_description else ''
+                    jar.writestr("META-INF/plugin.xml", '<idea-plugin><id>example</id><name>Example</name><vendor>' + vendor + '</vendor><version>' + version + '</version><idea-version since-build="' + since + '" until-build="262.*"/>' + inspection + '</idea-plugin>')
                     for name in ("LICENSE.md", "NOTICE.md", "AUTHORS.md"):
                         jar.writestr("META-INF/" + name, "altered" if changed_notice else name)
                     if test_class:
@@ -87,7 +88,7 @@ class ReleaseToolsTest(unittest.TestCase):
 
             build()
             self.assertEqual("example", inspect_zip(archive, "1.0.0", root)["id"])
-            for options in ({"version": "1.0.1"}, {"changed_notice": True}, {"test_class": True}):
+            for options in ({"version": "1.0.1"}, {"changed_notice": True}, {"test_class": True}, {"vendor": "Old vendor"}, {"missing_description": True}, {"since": "262"}):
                 build(**options)
                 with self.assertRaises(ValueError):
                     inspect_zip(archive, "1.0.0", root)

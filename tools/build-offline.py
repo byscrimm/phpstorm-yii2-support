@@ -37,7 +37,7 @@ def compile_sources(sources,destination,classpath):
 compile_sources(sorted((root/'src').rglob('*.java')),classes,cp)
 props=dict(line.split('=',1) for line in (root/'gradle.properties').read_text().splitlines() if '=' in line and not line.startswith('#'))
 version=props['pluginVersion']
-jar=build/f'yii2-support-extended-{version}.jar'
+jar=build/f'yii2-insight-{version}.jar'
 def zip_entry(name):
  entry=zipfile.ZipInfo(name,(1980,1,1,0,0,0));entry.compress_type=zipfile.ZIP_DEFLATED;entry.external_attr=0o100644<<16;return entry
 with zipfile.ZipFile(jar,'w',zipfile.ZIP_DEFLATED) as z:
@@ -48,18 +48,18 @@ with zipfile.ZipFile(jar,'w',zipfile.ZIP_DEFLATED) as z:
   rel=p.relative_to(root/'resources').as_posix()
   data=p.read_bytes()
   if rel=='META-INF/plugin.xml':
-   text=data.decode().replace('<idea-plugin>',f'<idea-plugin>\n    <version>{version}</version>\n    <idea-version since-build="262" until-build="262.*"/>',1)
+   text=data.decode().replace('<idea-plugin>',f'<idea-plugin>\n    <version>{version}</version>\n    <idea-version since-build="262.10315.130" until-build="262.*"/>',1)
    data=text.encode()
   z.writestr(zip_entry(rel),data)
 if args.test:
  test_classes=build/'test-classes';test_classes.mkdir(exist_ok=True)
  compile_sources(sorted((root/'tests').rglob('*.java')),test_classes,os.pathsep.join([str(classes),cp]))
- subprocess.run([str(java_home/'bin/java'),'-ea','-Djava.awt.headless=true','-cp',os.pathsep.join([str(test_classes),str(classes),cp]),'com.nvlad.yii2support.CoreRegressionTest'],check=True)
+ subprocess.run([str(java_home/'bin/java'),'-ea','-Djava.awt.headless=true','-cp',os.pathsep.join([str(test_classes),str(classes),cp]),'io.github.byscrimm.yii2insight.CoreRegressionTest'],check=True)
 if args.psi_test:
  subprocess.run([sys.executable,str(root/'tools/test-php-psi.py'),'--ide',str(ide)],check=True,env={**os.environ,'JAVA_HOME':str(java_home)})
 dist=root/'build/distributions';dist.mkdir(parents=True,exist_ok=True)
-archive=dist/f'yii2-support-extended-{version}.zip'
-with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z: z.writestr(zip_entry('yii2-support-extended/lib/'+jar.name),jar.read_bytes())
+archive=dist/f'yii2-insight-{version}.zip'
+with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z: z.writestr(zip_entry('yii2-insight/lib/'+jar.name),jar.read_bytes())
 sha=hashlib.sha256(archive.read_bytes()).hexdigest()
 archive.with_suffix('.zip.sha256').write_text(sha+'  '+archive.name+'\n')
 (dist/f'build-info-{version}.json').write_text(json.dumps({'version':version,'sdkVersion':info['version'],'sdkBuild':info['buildNumber'],'sha256':sha,'coreTests':'passed' if args.test else 'not run','phpPsiTests':'passed' if args.psi_test else 'not run','ideUiTests':'not run','jetbrainsPluginVerifier':'not run'},indent=2)+'\n')

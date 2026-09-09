@@ -61,13 +61,18 @@ def inspect_zip(path, version, root=ROOT):
                 if descriptor.findtext("version") != version:
                     raise ValueError("Descriptor/version mismatch")
                 expected = ET.parse(root / "resources/META-INF/plugin.xml").getroot()
-                if descriptor.findtext("id") != expected.findtext("id"):
-                    raise ValueError("Plugin identity mismatch")
+                for field in ("id", "name", "vendor"):
+                    if descriptor.findtext(field) != expected.findtext(field):
+                        raise ValueError("Plugin identity mismatch: " + field)
+                for inspection in descriptor.iter("localInspection"):
+                    description = "inspectionDescriptions/" + inspection.attrib["shortName"] + ".html"
+                    if description not in jar.namelist():
+                        raise ValueError("Missing inspection description: " + description)
                 for notice in ("LICENSE.md", "NOTICE.md", "AUTHORS.md"):
                     if jar.read("META-INF/" + notice) != (root / notice).read_bytes():
                         raise ValueError("Missing or changed distribution notice: " + notice)
                 compatibility = descriptor.find("idea-version")
-                if compatibility is None or compatibility.attrib != {"since-build": "262", "until-build": "262.*"}:
+                if compatibility is None or compatibility.attrib != {"since-build": "262.10315.130", "until-build": "262.*"}:
                     raise ValueError("Unexpected compatibility range; review the release validator")
                 descriptors.append({"id": descriptor.findtext("id"), "compatibility": compatibility.attrib})
     if len(descriptors) != 1:
@@ -138,7 +143,7 @@ def main():
     props = properties()
     version = validate_version(props["pluginVersion"])
     changes = changelog_section(version, (ROOT / "CHANGELOG.md").read_text())
-    archive = args.directory / f"yii2-support-extended-{version}.zip"
+    archive = args.directory / f"yii2-insight-{version}.zip"
     artifact = inspect_zip(archive, version)
     tests = junit_results(args.directory / "reports/test-results")
     evidence = runtime_evidence(ROOT / f"docs/verification/runtime-{version}.json", version, artifact["sha256"])
@@ -175,7 +180,7 @@ full IDE behavior. Read any runtime report for its exact tested IDE/OS scope.
 
 ## Attribution
 
-Maintained by byscrimm with AI assistance (OpenAI Codex); based on Vxdy's fork
+Maintained by by_scrimm with AI assistance (OpenAI Codex); based on Vxdy's fork
 of NVlad's Yii2 Support. Original BSD license and author credits are included.
 AI-assisted implementation/self-review is not independent human review.
 """

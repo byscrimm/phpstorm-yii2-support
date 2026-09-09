@@ -1,115 +1,75 @@
-# PhpStorm Yii2 Support
+# Yii2 Insight
 
 English | [Русский](README.ru.md)
 
-**Yii2 support for PhpStorm / IntelliJ IDEA:** completion, navigation, ActiveRecord
-relations, views, configuration, routes, translations and migrations.
+**Yii2 development tools for PhpStorm: completion, navigation, relation refactoring and PHPDoc assistance.**
 
-This repository is a fork of [vxdy/Yii2-Support-Extended](https://github.com/vxdy/Yii2-Support-Extended),
-which is based on [nvlad/yii2support](https://github.com/nvlad/yii2support).
-**All updates, fixes, enhancements and documentation changes in this fork are
-developed with AI assistance under the direction of the repository maintainer.**
-See [AI-assisted development](AI_DEVELOPMENT.md) for the development process and attribution.
+Yii2 Insight 1.0.0 is maintained by **by_scrimm**. It builds on [Vxdy’s Yii2 Support Extended](https://github.com/vxdy/Yii2-Support-Extended), originally based on [NVlad’s Yii2 Support](https://github.com/nvlad/yii2support). Original authorship and the BSD license are preserved. All changes in this fork are developed with AI assistance; using the plugin requires no AI account, API key or external AI service.
 
-AI assistance is used to maintain the project. The plugin's Yii2 analysis does not
-require an AI service or an AI API key.
+## Compatibility
 
-## Compatibility and status
+- **PhpStorm 2026.2.2**, build **262.10315.130**, through the **2026.2.x** branch.
+- Java 25, supplied by the supported IDE. Earlier PhpStorm versions are not supported by this build.
+- Plugin ID: `io.github.byscrimm.yii2insight`; independent settings: `yii2-insight.xml`.
+- IntelliJ IDEA with PHP and Database Tools is not separately validated or advertised as a tested target.
 
-| Item | Current target |
+## What it does
+
+| Area | Capabilities |
 | --- | --- |
-| Primary IDE | PhpStorm 2026.2, platform `262.*` |
-| Local SDK used | PhpStorm 2026.2.2, build `262.10315.130` |
-| Runtime / build JDK | Java 25 |
-| Plugin version | `1.1.0-rc.3` |
-| IntelliJ IDEA | Requires compatible PHP and Database Tools plugins; not separately verified |
+| ActiveRecord relations | Complete relation names in `with`, `joinWith`, `innerJoinWith`, `getRelation`, `via`; follow dotted paths, JOIN aliases, callback keys, named arguments and supported local query variables |
+| Navigation and usages | Navigate each relation segment to its getter; find relation-string usages from getter or local PHPDoc property; getter search also shows its PHPDoc property |
+| Relation refactoring | Rename from getter or PHPDoc declaration coordinates method/property names and matched usages, preserving path suffixes and JOIN aliases; preview/Undo use IDE refactoring; initiating Rename inside a string is blocked |
+| Relation documentation | Highlight missing class PHPDoc properties; add one relation from its getter or all missing local relations from the class; use `@property-read` without a public setter, nullable model types for `hasOne`, arrays for `hasMany` |
+| Query model types | Resolve supported ActiveRecord/query chains and local values, explicit `ActiveQuery`, and `one()`/`all()`; respect array mode and a final `asArray(false)` |
+| GridView and DetailView | Complete model attributes and nested relations; understand `attribute:format:label`; infer the first `value` callback parameter from the provider’s model, preserving explicit/PHPDoc parameter types; keep filter-model and row-model contexts separate |
+| Views | Complete template names/parameters, navigate to templates and render calls, inspect missing templates and required/unused parameters, offer associated quick fixes and view templates |
+| Configuration and components | Complete/reference properties in supported configuration arrays, constructor configs, `Yii::createObject`, widget/ActiveField configs and application components |
+| Forms and models | Complete model attributes in ActiveForm and active HTML helpers, validation rules and attribute labels |
+| Database and SQL | With an IDE datasource: table/column and query-condition completion, table-prefix support, ActiveRecord/table/property inspections, schema-assisted property suggestions and SQL parameter checks/fixes |
+| Routes and translations | Route/action-parameter completion and controller/action navigation in supported layouts; category/message completion from PHP translation catalogs and translation parameter assistance |
+| Migrations | Browse migration history; explicitly apply/undo/redo configured Yii migration commands; inspect command output and synchronize the selected IDE datasource; supported remote-interpreter integrations depend on IDE plugins/configuration |
 
-The runtime plugin name remains **Yii2 Support Extended**, with ID
-`com.yii2supportExtended`. The repository name does not change installed-plugin identity.
-This is a release candidate. Official Plugin Verifier passed for 262.10315.130;
-full IDE integration testing is still pending;
-see [verification](docs/verification/1.1.0-rc.3.md) and [the development plan](DEVELOPMENT_PLAN.md).
+Configure the project under **Settings → PHP → Yii2 Insight**, including the Yii root, view options, datasource and migration commands when needed. The plugin does not execute PHP or SQL to infer relations; migration actions explicitly execute your configured command.
 
-## Features
+## What came from upstream, and what we added
 
-| Area | Available support |
-| --- | --- |
-| ActiveRecord relations | Completion in `with`, `joinWith`, `innerJoinWith`, `getRelation` and `via`; dotted paths, JOIN aliases and callback keys |
-| Relation navigation | References to each relation getter in a path, segment rename handling and a getter usage-search contributor |
-| Query types | Model resolution in supported query chains, local variables and explicit `ActiveQuery`; `one()` / `all()` type support and `asArray` mode handling |
-| Views | Template name/parameter completion, navigation, missing-view and parameter inspections and quick fixes |
-| Configuration | Property completion/references in supported config arrays, `Yii::createObject()`, application components and widget options |
-| Forms and models | Model attributes in ActiveForm/HTML helpers, validation `rules()` and `attributeLabels()` completion |
-| Database | Schema-assisted table/column completion, ActiveRecord inspections and SQL parameter completion/checks |
-| Routes | Route and action-parameter completion, controller/action navigation in supported layouts |
-| Translations | Category/message completion from PHP translation catalogs |
-| Migrations | History, apply/undo/redo actions, command output and selected datasource synchronization |
+The upstream plugin already provided views, configuration arrays, forms, rules, database helpers, basic query type providers and migration tools. GridView configuration support also existed. These capabilities are inherited, not presented as new work by this fork.
 
-Database features need a configured IDE datasource. Configure the Yii root, views,
-datasource and migration commands in **Settings → PHP → Yii2 Support**.
-Some features are inherited and still need full IDE regression coverage. Dynamic
-PHP constructs may remain unresolved rather than receiving guessed results.
+Yii2 Insight adds the shared ActiveRecord relation resolver, nested relation completion/navigation and model-aware usage/refactoring integration; coordinated getter/PHPDoc handling; missing-relation documentation actions; improved GridView/DetailView model, shorthand and callback analysis; modern PhpStorm API integration; safer local-value, alias, SQL-fix and migration handling; and new tests/build/release infrastructure. The independent name/ID/settings prevent accidental overwriting of legacy plugin settings.
 
-### Relations in 1.1
+See the [feature provenance map](docs/FEATURES.md) and [changelog](CHANGELOG.md). [Vxdy](https://github.com/vxdy) and [NVlad](https://github.com/nvlad) retain credit for their work; maintenance of this fork is AI-assisted, not a claim of authorship of inherited code.
+
+## Examples
 
 ```php
-User::find()->with(['orders.items.product']);
-
-User::find()->joinWith([
-    'orders AS o' => function ($query) {
-        $query->andWhere(['o.status' => 1]);
-    },
-]);
-
-$query = User::find()->where(['active' => 1]);
-$query->with('orders');
-```
-
-The resolver follows supported query chains, local assignments, inherited relation
-getters and explicit `new ActiveQuery(User::class)`. It recognizes named arguments
-in relation contexts and `self::class` / `static::class` targets. Suggestions are
-based on public relation getters using `hasOne` or `hasMany`; SQL strings and JOIN
-mode arguments are excluded. Renaming one segment preserves the rest of the path
-and any JOIN alias.
-
-### GridView and DetailView in 1.1.0
-
-```php
-$query = User::find()->where(['active' => 1]);
-$provider = new ActiveDataProvider(['query' => $query]);
+City::find()->with('region.cities');
+City::find()->joinWith(['region r']);
 
 GridView::widget([
-    'dataProvider' => $provider,
-    'columns' => [
-        'email:email:Email address',
-        'profile.city',
-        ['value' => fn($model) => $model->email],
-    ],
+    'dataProvider' => new ActiveDataProvider(['query' => City::find()]),
+    'columns' => ['name:text:City', 'region.name',
+        ['value' => fn($model) => $model->name]],
 ]);
 ```
 
-Column completion now follows `ActiveDataProvider.query`, including local provider,
-query and provider-config variables, named arguments and widget/provider subclasses.
-It offers public/PHPDoc properties and readable getters, follows ActiveRecord relations
-and distinguishes attribute, formatter and label portions of shorthand strings.
-`filterAttribute` uses the filter model; row callbacks use the provider's model.
-DetailView uses its `model`, including non-ActiveRecord objects.
-
-Only the first `value` callback parameter receives an inferred model type. Closure
-and arrow-function parameters with explicit type declarations or `@param` annotations
-are preserved. `asArray(true)` produces array rows; a final `asArray(false)` restores
-object rows. Dynamic flags remain unresolved. HTML options, labels, unrelated widgets
-and non-DataColumn classes are excluded. Column-option completion supplies names
-without inserting a closure or overwriting an existing configured value.
+Navigate `region` to `City::getRegion()`. Start Rename on `getRegion()` or its PHPDoc property to update matched references; starting Rename inside the relation string is deliberately disabled. Missing relation documentation can be added with **Alt+Enter** without replacing existing comments or unrelated properties.
 
 ## Installation
 
-1. Build the plugin using one of the methods below, or use a matching ZIP from a
-   published release of this fork when available. GitHub **Code → Download ZIP**
-   downloads source code, not an installable plugin.
-2. Open **Settings → Plugins → ⚙ → Install Plugin from Disk…**.
-3. Select `build/distributions/yii2-support-extended-1.1.0-rc.3.zip` and restart the IDE.
-   Do not unpack the ZIP.
+1. Download the installable `yii2-insight-1.0.0.zip` from [GitHub Releases](https://github.com/byscrimm/phpstorm-yii2-support/releases). The repository’s source ZIP is not an installable plugin.
+2. Select **Settings → Plugins → ⚙ → Install Plugin from Disk**, choose the ZIP and restart PhpStorm.
+3. Configure **Settings → PHP → Yii2 Insight** for your project.
+
+Yii2 Insight is a separate plugin. Disable conflicting Yii2 Support plugins before enabling it. Existing legacy settings, inspection selections and shortcuts are not automatically migrated. A Marketplace listing becomes available only after submission and JetBrains approval.
+
+## Reliability and limits
+
+Main workflows were manually exercised in an isolated PhpStorm 2026.2.2 profile during release-candidate testing, alongside automated logic/PHP PSI regressions. **Bugs may remain.** Report the IDE/plugin versions and a minimal reproducible example through [GitHub Issues](https://github.com/byscrimm/phpstorm-yii2-support/issues).
+
+Analysis is intentionally conservative: arbitrary PHP execution, dynamic configuration, custom Query scopes/factories, provider mutations and some widget configurations may remain unresolved. Renaming coordinates local getter/PHPDoc declarations; synchronization of every subclass’s documentation is not guaranteed. Automatic relation PHPDoc generation skips ambiguous targets, mixed cardinality and array-mode relations.
+
+SQL-alias attribute completion, precise selected `asArray()` result keys, expanded controller-to-view flow and full configuration merging/DI are future work. Database-dependent and migration capabilities require explicit setup. Consult [the plan](DEVELOPMENT_PLAN.md) and [artifact verification](docs/verification/release-1.0.0.md) for scope and technical evidence.
 
 ## Build with Docker
 
@@ -131,7 +91,7 @@ Plugin Verifier is a separate `make verify` step.
 
 ## Build using installed PhpStorm
 
-With Python 3, PhpStorm 2026.2 and JDK 25, the offline path uses the installed SDK:
+With Python 3, PhpStorm 2026.2.2 and JDK 25, the offline path uses the installed SDK:
 
 ```sh
 python3 tools/build-offline.py --test --psi-test
@@ -163,29 +123,6 @@ frameworks and Plugin Verifier can still require downloads. GitHub Actions is
 configured to run this check/build path and store ZIP and verification reports.
 A prepared workflow is not evidence of a successful CI run.
 
-## Verification and known limits
-
-The current candidate passed **148 pure-logic checks** and **119 PHP PSI checks** both
-locally and in Docker. The offline JAR also passed static JVM reference checks
-for **190 plugin classes** against **1272 SDK jars**.
-The [dated artifact report](docs/verification/1.1.0-rc.3.md) records the exact ZIP and hash.
-
-- PHP PSI tests use the real PhpStorm parser and reference manipulator with a supplied
-  class table. They do not run the full PHP index, completion UI or complete IDE
-  Find Usages/Rename workflow.
-- `verify-offline.py` checks JVM classes/members and plugin descriptors. It does not
-  replace JetBrains Plugin Verifier or runtime testing in an activated IDE profile.
-- Docker/Gradle build and both regression suites passed on Linux arm64.
-- Official Plugin Verifier passed for PhpStorm 262.10315.130 with deprecated API warnings.
-- Full IDE integration remains unverified.
-- Arbitrary custom Query scopes, ambiguous assignments and dynamic factories may not resolve.
-- Providers returned by arbitrary factories/search methods, post-construction provider/query mutations,
-  widget configs held in variables and custom Query defaults/scopes need further analysis.
-- Expanded controller-to-view type flow, config merging/DI and configurable i18n sources remain planned work.
-
-The plugin analyzes PHP statically. Migration actions are explicit user actions
-that execute the configured Yii command.
-
 ## Development
 
 [Contributing](CONTRIBUTING.md) · [Agent instructions](AGENTS.md) ·
@@ -216,8 +153,3 @@ in [AUTHORS.md](AUTHORS.md) and [NOTICE.md](NOTICE.md). Release ZIPs include the
 - [Testing and isolation](docs/TESTING.md): evidence boundaries and protection of working IDEs.
 - [Metrics](docs/METRICS.md): actual test/build measurements; unmeasured values are explicit.
 - [Security reporting](SECURITY.md) and [GitHub configuration](docs/GITHUB_SETUP.md).
-
-CI definitions are not evidence of successful GitHub execution. Consult the actual
-[Actions runs](https://github.com/byscrimm/phpstorm-yii2-support/actions) and release report.
-Marketplace identity migration and asset/license review remain prerequisites for
-publishing this fork as a separate Marketplace plugin.

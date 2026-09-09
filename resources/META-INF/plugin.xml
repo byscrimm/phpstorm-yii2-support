@@ -1,32 +1,34 @@
 <idea-plugin>
-    <id>com.yii2supportExtended</id>
-    <name>Yii2 Support Extended</name>
-    <vendor email="m.bajtl@amr-eventtechnik.de" url="https://github.com/vxdy/">Vxdy</vendor>
-    <description>Yii2 Support Plugin Extended for PhpStorm. Enables Auto Completion and many QOL Features when developing with
-        the Yii2 Framework. Fork of nvlad's "Yii2 Support"
-    </description>
+    <id>io.github.byscrimm.yii2insight</id>
+    <name>Yii2 Insight</name>
+    <vendor url="https://github.com/byscrimm">by_scrimm</vendor>
+    <description><![CDATA[
+<h2>Yii2 Insight</h2>
+<p>Yii2 completion, navigation, relation refactoring and PHPDoc assistance for PhpStorm 2026.2.2 and later in the 2026.2 branch.</p>
+<h3>Features</h3><ul><li><b>ActiveRecord relations:</b> Complete relation names in with, joinWith, innerJoinWith, getRelation, via; follow dotted paths, JOIN aliases, callback keys, named arguments and supported local query variables</li><li><b>Navigation and usages:</b> Navigate each relation segment to its getter; find relation-string usages from getter or local PHPDoc property; getter search also shows its PHPDoc property</li><li><b>Relation refactoring:</b> Rename from getter or PHPDoc declaration coordinates method/property names and matched usages, preserving path suffixes and JOIN aliases; preview/Undo use IDE refactoring; initiating Rename inside a string is blocked</li><li><b>Relation documentation:</b> Highlight missing class PHPDoc properties; add one relation from its getter or all missing local relations from the class; use @property-read without a public setter, nullable model types for hasOne, arrays for hasMany</li><li><b>Query model types:</b> Resolve supported ActiveRecord/query chains and local values, explicit ActiveQuery, and one()/all(); respect array mode and a final asArray(false)</li><li><b>GridView and DetailView:</b> Complete model attributes and nested relations; understand attribute:format:label; infer the first value callback parameter from the provider’s model, preserving explicit/PHPDoc parameter types; keep filter-model and row-model contexts separate</li><li><b>Views:</b> Complete template names/parameters, navigate to templates and render calls, inspect missing templates and required/unused parameters, offer associated quick fixes and view templates</li><li><b>Configuration and components:</b> Complete/reference properties in supported configuration arrays, constructor configs, Yii::createObject, widget/ActiveField configs and application components</li><li><b>Forms and models:</b> Complete model attributes in ActiveForm and active HTML helpers, validation rules and attribute labels</li><li><b>Database and SQL:</b> With an IDE datasource: table/column and query-condition completion, table-prefix support, ActiveRecord/table/property inspections, schema-assisted property suggestions and SQL parameter checks/fixes</li><li><b>Routes and translations:</b> Route/action-parameter completion and controller/action navigation in supported layouts; category/message completion from PHP translation catalogs and translation parameter assistance</li><li><b>Migrations:</b> Browse migration history; explicitly apply/undo/redo configured Yii migration commands; inspect command output and synchronize the selected IDE datasource; supported remote-interpreter integrations depend on IDE plugins/configuration</li></ul>
+<h3>Built on an established foundation</h3>
+<p>Independent fork of Vxdy's Yii2 Support Extended, based on NVlad's Yii2 Support. Views, configuration arrays, forms, rules, database helpers, basic query types and migration tools were inherited. Yii2 Insight adds shared relation analysis, nested relation navigation and usage/refactoring integration, coordinated getter/PHPDoc handling, relation documentation quick fixes, improved GridView/DetailView and callback inference, and current IDE/build integration.</p>
+<h3>Getting started</h3>
+<p>Configure Settings → PHP → Yii2 Insight for the project root, views and optional datasource/migration commands. Disable conflicting Yii2 Support plugins. Legacy settings are not imported automatically. Use completion in with/joinWith, navigate relation segments, and invoke Rename from getter/PHPDoc declarations. Alt+Enter adds missing relation documentation.</p>
+<h3>Requirements and limits</h3>
+<p>PhpStorm 2026.2.2 (262.10315.130) through 2026.2.x, Java 25 supplied by the IDE. Earlier IDE versions are not supported. Database helpers need a configured IDE datasource. Migration actions explicitly run the configured command. IntelliJ IDEA is not separately validated.</p>
+<p>Static analysis does not execute application PHP/SQL. Dynamic factories, custom query scopes and ambiguous code may remain unresolved. SQL-alias column completion, precise selected asArray result keys and expanded controller-to-view/DI analysis are planned. Getter/PHPDoc pairing is local; all subclass documentation is not automatically synchronized.</p>
+<h3>Community, support and license</h3>
+<p>Main workflows were manually exercised in isolated PhpStorm 2026.2.2 during release-candidate testing. Bugs may remain; please report the IDE/plugin versions and a minimal example at <a href="https://github.com/byscrimm/phpstorm-yii2-support/issues">GitHub Issues</a>.</p>
+<p>Maintained by by_scrimm. All fork updates are developed with AI assistance; no AI account, API key or external AI service is required to use the plugin. Original authorship and BSD license are preserved. This is a community project, not an official Yii or JetBrains product.</p>
+<p><a href="https://github.com/byscrimm/phpstorm-yii2-support">Source and documentation</a> · <a href="https://github.com/byscrimm/phpstorm-yii2-support/blob/master/LICENSE.md">License</a> · <a href="https://github.com/byscrimm/phpstorm-yii2-support/blob/master/CHANGELOG.md">Changelog</a></p>
+    ]]></description>
 
-    <change-notes><![CDATA[
-      <b>1.1.0-rc.3</b><br/>
-      Repository and release automation; original license and attribution included in the distribution.<br/>
-      Release candidate: full IDE integration verification is pending.<br/><br/>
-      <b>GridView and DetailView improvements</b><br/>
-      GridView and DetailView attribute completion from data provider queries and models.
-      Nested relation paths, named arguments, local provider/query variables and cursor-aware column formats.<br/>
-      Types for the first value callback parameter, including arrow functions, with explicit/PHPDoc types preserved.
-      Array query results are handled separately. Full IDE integration verification is pending.<br/><br/>
-      <b>1.1.0-rc.1</b><br/>
-      ActiveRecord relation completion and navigation, nested relation paths, JOIN aliases,
-      relation getter usage search, named arguments, and PHP PSI regression tests.<br/>
-      Fixes for array key references and the last asArray(false) call.<br/>
-      Targets PhpStorm 2026.2 (262.*). Release candidate; full IDE integration testing is pending.
-    ]]></change-notes>
+    <change-notes><![CDATA[<b>1.0.0 — first stable Yii2 Insight release</b><br/>Independent Yii2 support for PhpStorm 2026.2.2: relation completion/navigation/refactoring, class PHPDoc actions, improved GridView/DetailView inference, and retained view/config/form/database/route/translation/migration functionality. Main workflows were manually exercised during candidate testing; bugs may remain. Please report issues on GitHub.]]></change-notes>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
     <!-- uncomment to enable plugin in all products
     <depends>com.intellij.modules.lang</depends>
     -->
+    <incompatible-with>com.yii2supportExtended</incompatible-with>
+    <incompatible-with>com.yii2support</incompatible-with>
+    <incompatible-with>com.nvlad.yii2-framework</incompatible-with>
     <depends>com.jetbrains.php</depends>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.database</depends>
@@ -37,143 +39,150 @@
     </depends>
 
     <extensions defaultExtensionNs="com.jetbrains.php">
-        <typeProvider4 implementation="com.nvlad.yii2support.typeprovider.YiiTypeProvider"/>
-        <typeProvider4 implementation="com.nvlad.yii2support.typeprovider.ActiveRecordTypeProvider"/>
-        <typeProvider4 implementation="com.nvlad.yii2support.widgetsconfig.WidgetCallbackTypeProvider"/>
+        <typeProvider4 implementation="io.github.byscrimm.yii2insight.typeprovider.YiiTypeProvider"/>
+        <typeProvider4 implementation="io.github.byscrimm.yii2insight.typeprovider.ActiveRecordTypeProvider"/>
+        <typeProvider4 implementation="io.github.byscrimm.yii2insight.widgetsconfig.WidgetCallbackTypeProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
 
-        <projectService serviceImplementation="com.nvlad.yii2support.utils.Yii2SupportSettings"/>
-        <projectService serviceImplementation="com.nvlad.yii2support.migrations.services.MigrationService"/>
+        <referencesSearch implementation="io.github.byscrimm.yii2insight.relations.RelationReferencesSearch"/>
+        <renamePsiElementProcessor implementation="io.github.byscrimm.yii2insight.relations.RelationRenameProcessor" order="last"/>
+        <localInspection language="PHP" shortName="Yii2InsightRelationPhpDocInspection"
+                         displayName="Missing relation PHPDoc property" groupName="Relations" groupPath="PHP,Framework,Yii2"
+                         enabledByDefault="true" level="WARNING"
+                         implementationClass="io.github.byscrimm.yii2insight.relations.RelationPhpDocInspection"/>
+        <renameHandler implementation="io.github.byscrimm.yii2insight.relations.RelationRenameHandler" order="first"/>
 
-        <projectConfigurable instance="com.nvlad.yii2support.ui.settings.SettingsForm"
-                             displayName="Yii2 Support"
-                             id="Yii2Support.SettingsForm"
+        <projectService serviceImplementation="io.github.byscrimm.yii2insight.utils.Yii2InsightSettings"/>
+        <projectService serviceImplementation="io.github.byscrimm.yii2insight.migrations.services.MigrationService"/>
+
+        <projectConfigurable instance="io.github.byscrimm.yii2insight.ui.settings.SettingsForm"
+                             displayName="Yii2 Insight"
+                             id="io.github.byscrimm.yii2insight.SettingsForm"
                              parentId="reference.webide.settings.project.settings.php"/>
         <!-- Views -->
         <completion.contributor language="PHP"
-                                implementationClass="com.nvlad.yii2support.views.completion.CompletionContributor"/>
+                                implementationClass="io.github.byscrimm.yii2insight.views.completion.CompletionContributor"/>
         <psi.referenceContributor language="PHP"
-                                  implementation="com.nvlad.yii2support.views.references.PsiReferenceContributor"/>
-        <gotoDeclarationHandler implementation="com.nvlad.yii2support.views.navigation.ViewGotoDeclarationHandler"/>
-        <renamePsiElementProcessor implementation="com.nvlad.yii2support.views.refactor.RenameViewProcessor"
+                                  implementation="io.github.byscrimm.yii2insight.views.references.PsiReferenceContributor"/>
+        <gotoDeclarationHandler implementation="io.github.byscrimm.yii2insight.views.navigation.ViewGotoDeclarationHandler"/>
+        <renamePsiElementProcessor implementation="io.github.byscrimm.yii2insight.views.refactor.RenameViewProcessor"
                                    order="first"/>
-        <localInspection language="PHP" shortName="MissedViewInspection"
+        <localInspection language="PHP" shortName="Yii2InsightMissedViewInspection"
                          displayName="Missing View file"
                          groupName="Views" groupPath="PHP,Framework,Yii2"
                          enabledByDefault="true" level="ERROR"
-                         implementationClass="com.nvlad.yii2support.views.inspections.MissedViewInspection"/>
-        <localInspection language="PHP" shortName="RequireParameterInspection"
+                         implementationClass="io.github.byscrimm.yii2insight.views.inspections.MissedViewInspection"/>
+        <localInspection language="PHP" shortName="Yii2InsightRequireParameterInspection"
                          displayName="Require parameters"
                          groupName="Views" groupPath="PHP,Framework,Yii2"
                          enabledByDefault="true" level="ERROR"
-                         implementationClass="com.nvlad.yii2support.views.inspections.RequireParameterInspection"/>
-        <localInspection language="PHP" shortName="UnusedParameterInspection"
+                         implementationClass="io.github.byscrimm.yii2insight.views.inspections.RequireParameterInspection"/>
+        <localInspection language="PHP" shortName="Yii2InsightUnusedParameterInspection"
                          displayName="Unused parameters"
                          groupName="Views" groupPath="PHP,Framework,Yii2"
                          enabledByDefault="true" level="WARNING"
-                         implementationClass="com.nvlad.yii2support.views.inspections.UnusedParameterInspection"/>
-        <localInspection language="PHP" shortName="ViewMissedPhpDocInspection"
+                         implementationClass="io.github.byscrimm.yii2insight.views.inspections.UnusedParameterInspection"/>
+        <localInspection language="PHP" shortName="Yii2InsightViewMissedPhpDocInspection"
                          displayName="Missed PhpDoc variable declaration"
                          groupName="Views" groupPath="PHP,Framework,Yii2"
                          enabledByDefault="false" level="WARNING"
-                         implementationClass="com.nvlad.yii2support.views.inspections.ViewMissedPhpDocInspection"/>
+                         implementationClass="io.github.byscrimm.yii2insight.views.inspections.ViewMissedPhpDocInspection"/>
 
-        <fileBasedIndex implementation="com.nvlad.yii2support.views.index.ViewFileIndex" id="view-index"/>
+        <fileBasedIndex implementation="io.github.byscrimm.yii2insight.views.index.ViewFileIndex" id="io.github.byscrimm.yii2insight.views"/>
 
-        <projectConfigurable instance="com.nvlad.yii2support.views.settings.ViewSettings"
+        <projectConfigurable instance="io.github.byscrimm.yii2insight.views.settings.ViewSettings"
                              displayName="Views"
-                             id="Yii2Support.ViewSettings"
-                             parentId="Yii2Support.SettingsForm"
+                             id="io.github.byscrimm.yii2insight.ViewSettings"
+                             parentId="io.github.byscrimm.yii2insight.SettingsForm"
                              nonDefaultProject="true"/>
 
         <!-- Object Factory -->
-        <psi.referenceContributor language="PHP" implementation="com.nvlad.yii2support.objectfactory.ObjectFactoryReferenceContributor"/>
-        <psi.referenceContributor language="PHP" implementation="com.nvlad.yii2support.url.UrlReferenceContributor"/>
+        <psi.referenceContributor language="PHP" implementation="io.github.byscrimm.yii2insight.objectfactory.ObjectFactoryReferenceContributor"/>
+        <psi.referenceContributor language="PHP" implementation="io.github.byscrimm.yii2insight.url.UrlReferenceContributor"/>
         <completion.contributor language="PHP"
-                                implementationClass="com.nvlad.yii2support.objectfactory.ObjectFactoryCompletionContributor"/>
-        <localInspection language="PHP" shortName="MissedFieldInspection"
+                                implementationClass="io.github.byscrimm.yii2insight.objectfactory.ObjectFactoryCompletionContributor"/>
+        <localInspection language="PHP" shortName="Yii2InsightMissedFieldInspection"
                          displayName="Missed field"
                          groupName="Object Factory" groupPath="PHP,Framework,Yii2"
                          enabledByDefault="true" level="ERROR"
-                         implementationClass="com.nvlad.yii2support.objectfactory.ObjectFactoryMissedFieldInspection"/>
+                         implementationClass="io.github.byscrimm.yii2insight.objectfactory.ObjectFactoryMissedFieldInspection"/>
 
         <!-- i18n -->
-        <completion.contributor language="PHP" implementationClass="com.nvlad.yii2support.i18n.CompletionContributor"/>
+        <completion.contributor language="PHP" implementationClass="io.github.byscrimm.yii2insight.i18n.CompletionContributor"/>
 
         <!-- Database -->
         <completion.contributor language="PHP"
-                                implementationClass="com.nvlad.yii2support.database.QueryCompletionContributor"/>
+                                implementationClass="io.github.byscrimm.yii2insight.database.QueryCompletionContributor"/>
         <completion.contributor language="PHP"
-                                implementationClass="com.nvlad.yii2support.database.ParamsCompletionContributor"/>
+                                implementationClass="io.github.byscrimm.yii2insight.database.ParamsCompletionContributor"/>
         <completion.contributor language="PHP"
-                                implementationClass="com.nvlad.yii2support.forms.FieldAttributesCompletionContributor"/>
+                                implementationClass="io.github.byscrimm.yii2insight.forms.FieldAttributesCompletionContributor"/>
         <completion.contributor language="PHP"
-                                implementationClass="com.nvlad.yii2support.forms.ActiveFormCompletionContributor"/>
+                                implementationClass="io.github.byscrimm.yii2insight.forms.ActiveFormCompletionContributor"/>
 
-        <localInspection language="PHP" shortName="MissedParamInspection"
+        <localInspection language="PHP" shortName="Yii2InsightMissedParamInspection"
                          displayName="Wrong database parameters"
                          groupName="Database" groupPath="PHP,Framework,Yii2"
                          enabledByDefault="true" level="ERROR"
-                         implementationClass="com.nvlad.yii2support.database.MissedParamInspection"/>
-        <localInspection language="PHP" shortName="PropertiesInspection"
+                         implementationClass="io.github.byscrimm.yii2insight.database.MissedParamInspection"/>
+        <localInspection language="PHP" shortName="Yii2InsightPropertiesInspection"
                          displayName="Missing property"
                          groupName="Database" groupPath="PHP,Framework,Yii2"
                          enabledByDefault="true" level="ERROR"
-                         implementationClass="com.nvlad.yii2support.properties.PropertiesInspection"/>
-        <localInspection language="PHP" shortName="UndetectableTableInspection"
+                         implementationClass="io.github.byscrimm.yii2insight.properties.PropertiesInspection"/>
+        <localInspection language="PHP" shortName="Yii2InsightUndetectableTableInspection"
                          displayName="Undetectable table for ActiveRecord"
                          groupName="Database" groupPath="PHP,Framework,Yii2"
                          enabledByDefault="true" level="ERROR"
-                         implementationClass="com.nvlad.yii2support.database.UndetectableTableInspection"/>
-        <localInspection language="PHP" shortName="MissingActiveRecordInActiveQueryInspection"
+                         implementationClass="io.github.byscrimm.yii2insight.database.UndetectableTableInspection"/>
+        <localInspection language="PHP" shortName="Yii2InsightMissingActiveRecordInActiveQueryInspection"
                          displayName="Can not find connected ActiveRecord class."
                          groupName="Database" groupPath="PHP,Framework,Yii2"
                          enabledByDefault="true" level="ERROR"
-                         implementationClass="com.nvlad.yii2support.database.MissingActiveRecordInActiveQueryInspection"/>
+                         implementationClass="io.github.byscrimm.yii2insight.database.MissingActiveRecordInActiveQueryInspection"/>
 
-        <projectConfigurable instance="com.nvlad.yii2support.database.settings.SettingsForm"
+        <projectConfigurable instance="io.github.byscrimm.yii2insight.database.settings.SettingsForm"
                              displayName="Database"
-                             id="Yii2Support.DatabaseSettings"
-                             parentId="Yii2Support.SettingsForm" order="first"
+                             id="io.github.byscrimm.yii2insight.DatabaseSettings"
+                             parentId="io.github.byscrimm.yii2insight.SettingsForm" order="first"
                              nonDefaultProject="true"/>
 
         <!-- Yii Configurations -->
-        <fileBasedIndex implementation="com.nvlad.yii2support.configurations.ComponentsIndex" id="components-index"/>
+        <fileBasedIndex implementation="io.github.byscrimm.yii2insight.configurations.ComponentsIndex" id="io.github.byscrimm.yii2insight.components"/>
         <completion.contributor language="PHP"
-                                implementationClass="com.nvlad.yii2support.configurations.YiiAppCompletionContributor"/>
+                                implementationClass="io.github.byscrimm.yii2insight.configurations.YiiAppCompletionContributor"/>
 
         <completion.contributor language="PHP"
-                                implementationClass="com.nvlad.yii2support.widgetsconfig.WidgetConfigCompletionContributor"/>
+                                implementationClass="io.github.byscrimm.yii2insight.widgetsconfig.WidgetConfigCompletionContributor"/>
 
         <!-- Validation -->
         <completion.contributor language="PHP"
-                                implementationClass="com.nvlad.yii2support.validation.ValidationCompletionContributor"/>
+                                implementationClass="io.github.byscrimm.yii2insight.validation.ValidationCompletionContributor"/>
 
         <!-- AttributeLabels -->
         <completion.contributor language="PHP"
-                                implementationClass="com.nvlad.yii2support.attributeLabels.AttributeLabelCompletionContributor"/>
+                                implementationClass="io.github.byscrimm.yii2insight.attributeLabels.AttributeLabelCompletionContributor"/>
 
         <!-- ActiveRecord relations -->
-        <referencesSearch implementation="com.nvlad.yii2support.relations.RelationReferencesSearch"/>
-        <completion.contributor language="PHP" implementationClass="com.nvlad.yii2support.relations.RelationCompletionContributor"/>
-        <psi.referenceContributor language="PHP" implementation="com.nvlad.yii2support.relations.RelationReferenceContributor"/>
+        <completion.contributor language="PHP" implementationClass="io.github.byscrimm.yii2insight.relations.RelationCompletionContributor"/>
+        <psi.referenceContributor language="PHP" implementation="io.github.byscrimm.yii2insight.relations.RelationReferenceContributor"/>
 
         <!-- Url -->
         <completion.contributor language="PHP"
-                                implementationClass="com.nvlad.yii2support.url.UrlCompletionContributor"/>
-        <!--        <psi.referenceContributor language="PHP" implementation="com.nvlad.yii2support.url.UrlReferenceContributor"/>-->
+                                implementationClass="io.github.byscrimm.yii2insight.url.UrlCompletionContributor"/>
+        <!--        <psi.referenceContributor language="PHP" implementation="io.github.byscrimm.yii2insight.url.UrlReferenceContributor"/>-->
 
         <!-- Migrations -->
-        <toolWindow id="Migrations" anchor="bottom"
-                    factoryClass="com.nvlad.yii2support.migrations.ui.toolWindow.MigrationsToolWindowFactory"
+        <toolWindow id="Yii2 Insight Migrations" anchor="bottom"
+                    factoryClass="io.github.byscrimm.yii2insight.migrations.ui.toolWindow.MigrationsToolWindowFactory"
                     icon="/icons/migration_tool_window.png"/>
     </extensions>
 
     <actions>
         <!-- Add your actions here -->
-        <action id="yii2support.GotoViewCalls" class="com.nvlad.yii2support.views.actions.OpenViewCalls"
+        <action id="io.github.byscrimm.yii2insight.GotoViewCalls" class="io.github.byscrimm.yii2insight.views.actions.OpenViewCalls"
                 text="Goto View Render Call">
             <add-to-group group-id="GoToMenu" anchor="last"/>
             <keyboard-shortcut keymap="$default" first-keystroke="alt R"/>
@@ -184,7 +193,7 @@
     <!--
     <project-components>
         <component>
-            <implementation-class>Yii2SupportSettings</implementation-class>
+            <implementation-class>Yii2InsightSettings</implementation-class>
         </component>
 
     </project-components>

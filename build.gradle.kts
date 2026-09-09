@@ -6,7 +6,7 @@ plugins {
     id("org.jetbrains.intellij.platform") version "2.18.1"
 }
 
-group = "com.yii2support"
+group = "io.github.byscrimm"
 version = providers.gradleProperty("pluginVersion").get()
 
 repositories {
@@ -41,8 +41,8 @@ sourceSets {
 
 intellijPlatform {
     pluginConfiguration {
-        name = "Yii2 Support Extended"
-        ideaVersion { sinceBuild = "262"; untilBuild = "262.*" }
+        name = "Yii2 Insight"
+        ideaVersion { sinceBuild = "262.10315.130"; untilBuild = "262.*" }
     }
     pluginVerification {
         ides { create(IntelliJPlatformType.PhpStorm, providers.gradleProperty("platformVersion").get()) }
@@ -53,7 +53,7 @@ tasks {
     processResources {
         from(listOf("LICENSE.md", "NOTICE.md", "AUTHORS.md")) { into("META-INF") }
     }
-    buildPlugin { dependsOn(check); archiveFileName = "yii2-support-extended-${project.version}.zip" }
+    buildPlugin { dependsOn(check); archiveFileName = "yii2-insight-${project.version}.zip" }
     test {
         maxHeapSize = "2g"
         useJUnit()

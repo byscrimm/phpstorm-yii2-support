@@ -2,7 +2,7 @@
 
 ## Start here
 
-- Follow the current user request. Discussion-only requests do not authorize edits.
+- Follow the current user request. Start changes only after a direct action request or explicit confirmation. Questions, discussion and requests for an opinion do not authorize edits.
 - Read `docs/PROJECT_MEMORY.md` for the latest handoff, `DEVELOPMENT_PLAN.md` for scope,
   and the relevant source before implementation. Memory is context, not proof.
 - This is a Java plugin for JetBrains IDEs, not a PHP application or a Codex plugin.
@@ -21,12 +21,35 @@
 - Communicate with the maintainer in Russian. Keep code identifiers and shared
   technical documentation in English. Summarize outcome, verification and limits.
 
+## Efficient work
+
+- Keep each task focused on its acceptance criteria; record unrelated improvements
+  in the plan instead of expanding implementation scope.
+- Read the entry-point documents once per task, then use targeted searches and
+  relevant sections. Re-read when files change or evidence is missing.
+- Keep handoffs concise: current decisions, evidence, limitations and next step.
+  Link detailed reports instead of copying logs or conversation history.
+- Prefer local Git and authenticated `gh` for repository operations; use browser
+  automation only when the needed operation is unavailable through the CLI.
+  Do not connect account-wide plugins without an explicit user request.
+- Save verbose logs under ignored `build/`; inspect summaries and relevant failures.
+  Wait for completion with bounded polling; report meaningful changes only.
+- Use focused tests during implementation, then run the required final checks on
+  the completed change. Repeat passing checks only for relevant changes, failures
+  or unresolved concerns; never weaken release gates to reduce usage.
+- Batch related code, documentation and metadata edits before final validation.
+  Documentation-only changes do not require rebuilding the plugin.
+- Prefer a separate task for the next independent feature with a concise handoff;
+  create it only when the user requests it. Do not spawn agents for routine work
+  or change the selected model without authorization.
+
 ## Baseline and compatibility
 
 - Read versions from `gradle.properties`; do not infer them from the calendar year.
   Current target: PhpStorm 2026.2 / IntelliJ Platform `262.*`, Java 25.
-- Preserve plugin ID `com.yii2supportExtended`, Java package `com.nvlad.yii2support`
-  and existing settings IDs. Repository branding is separate from runtime identity.
+- The authorized independent identity is Yii2 Insight, vendor `by_scrimm`, plugin ID
+  and Java package `io.github.byscrimm.yii2insight`. Settings use `yii2-insight.xml`.
+  Keep upstream credits; do not read, migrate or overwrite legacy settings automatically.
 - Do not broaden IDE compatibility based only on compilation. Check the actual
   target SDK and official JetBrains documentation when an API is uncertain.
 - Preserve `LICENSE.md` and credit both upstream projects. All updates to this fork
