@@ -16,7 +16,7 @@ Read `AGENTS.md` first; verify current source and configuration before making ch
   and BSD license remain intact. See `AI_DEVELOPMENT.md`.
 - Current name: Yii2 Insight; vendor by_scrimm; ID/package io.github.byscrimm.yii2insight.
 - User authorized independent identity migration; legacy settings stay untouched.
-- See IDENTITY.md. Current branch refactor/yii2-insight-identity is based on the unmerged repository-workflow branch.
+- See IDENTITY.md. PR #2 has been merged into build/repository-workflow; PR #1 carries the complete 1.0.0 preparation to master.
 
 ## Build baseline
 
@@ -326,3 +326,12 @@ passed. Docker/official verifier report and final ZIP are recorded in
 verification/release-1.0.0.md. Candidate UI results do not certify the new ZIP hash.
 Stable publication still requires the exact final ZIP runtime report under RELEASING.md.
 User-owned untracked branding files in img/ remain untouched and outside packaging.
+
+
+Repository handoff: PR #2 merged after CI run 34333539506 passed policy,
+Docker suites, official Plugin Verifier and artifact validation. PR #1 is being
+updated as the complete 1.0.0 integration. The maintainer authorized all repository
+operations without manual involvement. Automated connection to the isolated Java IDE
+failed with Invalid app for its observed bundle ID and display name; the working
+PhpStorm was not touched. Stable publication remains gated by actual final-ZIP
+runtime evidence. Do not invent it or bypass the release workflow.
